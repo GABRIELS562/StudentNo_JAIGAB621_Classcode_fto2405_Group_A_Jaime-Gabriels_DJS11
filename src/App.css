@@ -336,3 +336,204 @@ h1 {
 .audio-player audio {
   width: 100%;
 }
+/* ... (keep existing styles) */
+
+.home {
+  padding: 20px;
+}
+
+.carousel-item {
+  padding: 10px;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.carousel-item h3 {
+  margin: 10px 0;
+  font-size: 1.2rem;
+}
+
+.carousel-item p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.carousel-item .play-button {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+/* Override some react-slick styles */
+.slick-prev:before, .slick-next:before {
+  color: #333;
+}
+
+.slick-dots li button:before {
+  font-size: 12px;
+}
+/* Existing styles ... */
+
+.home {
+  padding: 20px;
+}
+
+.carousel-item {
+  padding: 10px;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.carousel-item h3 {
+  margin: 10px 0;
+  font-size: 1.2rem;
+}
+
+.carousel-item p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.carousel-item .play-button {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.view-all-link {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* Slick carousel overrides */
+.slick-prev:before, .slick-next:before {
+  color: #333;
+}
+
+.slick-dots li button:before {
+  font-size: 12px;
+}
+body {
+  background-color: 	#a8a7a7;
+  color: white;
+}
+
+.home {
+  padding: 20px;
+}
+
+.carousel-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.carousel-item {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.carousel-item-content {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.carousel-item h3 {
+  margin: 10px 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.carousel-item p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+.view-details-btn, .play-button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: white;
+  color: #e8175d;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.view-details-btn:hover, .play-button:hover {
+  background-color: #e8175d;
+  color: white;
+}
+
+.view-all-link {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: white;
+  text-decoration: none;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* Slick carousel overrides */
+.slick-prev, .slick-next {
+  z-index: 1;
+}
+
+.slick-prev {
+  left: 10px;
+}
+
+.slick-next {
+  right: 10px;
+}
+
+.slick-prev:before, .slick-next:before {
+  color: white;
+  font-size: 24px;
+}
+
+.slick-dots {
+  bottom: -40px;
+}
+
+.slick-dots li button:before {
+  color: white;
+  font-size: 12px;
+}
+
+.slick-dots li.slick-active button:before {
+  color: white;
+}

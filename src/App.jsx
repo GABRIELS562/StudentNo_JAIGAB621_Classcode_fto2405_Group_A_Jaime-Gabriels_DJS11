@@ -1,25 +1,16 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { blackA, mauve, violet } from '@radix-ui/colors';
+import Home from './components/Home';
 import ShowList from './components/ShowList';
 import ShowDetails from './components/ShowDetails';
 import Favorites from './components/Favorites';
 import './App.css';
 
-const DEMO_AUDIO_URL = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; // Replace with your demo audio URL
+const DEMO_AUDIO_URL = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
 function RadixColors() {
-  return (
-    <style>
-      {`:root {
-        ${Object.entries({...blackA, ...mauve, ...violet}).map(([key, value]) => `--${key}: ${value};`).join('\n')}
-      }`}
-    </style>
-  );
-}
-
-function Home() {
-  return <h1>Welcome to the Podcast App</h1>;
+  // ... (keep existing RadixColors component)
 }
 
 function App() {
@@ -46,7 +37,7 @@ function App() {
         </nav>
 
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home playAudio={playAudio} />} />
           <Route path="/shows" element={<ShowList playAudio={playAudio} />} />
           <Route path="/show/:id" element={<ShowDetails playAudio={playAudio} />} />
           <Route path="/favorites" element={<Favorites playAudio={playAudio} />} />

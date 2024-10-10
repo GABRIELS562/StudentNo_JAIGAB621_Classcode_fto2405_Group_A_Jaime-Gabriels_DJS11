@@ -1,22 +1,35 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import AudioPlayer from './AudioPlayer';
 
 const API_URL = 'https://podcast-api.netlify.app/id/';
 
-function ShowDetails() {
+function ShowDetails({ playAudio }) {
   const [show, setShow] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [selectedEpisode, setSelectedEpisode] = useState(null);
   const { id } = useParams();
 
-  // ... (keep existing fetchShowDetails, useEffect, checkIfFavorite, and toggleFavorite functions)
+  const fetchShowDetails = useCallback(async () => {
+    try {
+      console.log('Fetching show details for ID:', id);
+      const response = await fetch(`${API_URL}${id}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('Fetched show details:', data);
+      setShow(data);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching show details:', err);
+      setError(err.message);
+      setIsLoading(false);
+    }
+  }, [id]);
 
-  const handleEpisodeSelect = (episode) => {
-    setSelectedEpisode(episode);
-  };
+  useEffect(() => {
+    fetchShowDetails();
+  }, [fetchShowDetails]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -26,9 +39,6 @@ function ShowDetails() {
     <div className="show-details">
       <h1>{show.title}</h1>
       <img src={show.image} alt={show.title} />
-      <button onClick={toggleFavorite} className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`}>
-        {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-      </button>
       <p>{show.description}</p>
       <h2>Seasons</h2>
       {show.seasons.map((season) => (
@@ -38,18 +48,12 @@ function ShowDetails() {
             {season.episodes.map((episode) => (
               <li key={episode.episode}>
                 Episode {episode.episode}: {episode.title}
-                <button onClick={() => handleEpisodeSelect(episode)}>Play</button>
+                <button onClick={() => playAudio(show.id, episode.title)}>Play</button>
               </li>
             ))}
           </ul>
         </div>
       ))}
-      {selectedEpisode && (
-        <div className="selected-episode">
-          <h3>Now Playing: {selectedEpisode.title}</h3>
-          <AudioPlayer episode={selectedEpisode} />
-        </div>
-      )}
       <Link to="/shows" className="back-link">Back to Shows</Link>
     </div>
   );

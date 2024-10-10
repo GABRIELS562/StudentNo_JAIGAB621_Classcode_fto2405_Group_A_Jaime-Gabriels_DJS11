@@ -5,23 +5,37 @@ const API_URL = 'https://podcast-api.netlify.app';
 
 function ShowList({ playAudio }) {
   const [shows, setShows] = useState([]);
-  const [sortedShows, setSortedShows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortOrder, setSortOrder] = useState('asc');
-  const [favorites, setFavorites] = useState([]);
 
-  // ... (keep existing useEffect, fetchShows, loadFavorites, sortShows, handleSortChange, toggleFavorite, and isFavorite functions)
+  useEffect(() => {
+    fetchShows();
+  }, []);
+
+  const fetchShows = async () => {
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error('Failed to fetch shows');
+      }
+      const data = await response.json();
+      setShows(data);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching shows:', err);
+      setError(err.message);
+      setIsLoading(false);
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="show-list-container">
-      <h1>All Shows</h1>
-      {/* ... (keep existing sort controls) */}
+      <h1>All Podcast Shows</h1>
       <div className="show-list">
-        {sortedShows.map(show => (
+        {shows.map(show => (
           <div key={show.id} className="show-card">
             <img src={show.image} alt={show.title} />
             <div className="show-card-content">
@@ -30,12 +44,6 @@ function ShowList({ playAudio }) {
               <p>Last updated: {new Date(show.updated).toLocaleDateString()}</p>
               <p>Genres: {show.genres.join(', ')}</p>
               <Link to={`/show/${show.id}`}>View Details</Link>
-              <button 
-                onClick={() => toggleFavorite(show)}
-                className={`favorite-button ${isFavorite(show.id) ? 'is-favorite' : ''}`}
-              >
-                {isFavorite(show.id) ? 'Remove from Favorites' : 'Add to Favorites'}
-              </button>
               <button onClick={() => playAudio(show.id, show.title)} className="play-button">
                 Play
               </button>
