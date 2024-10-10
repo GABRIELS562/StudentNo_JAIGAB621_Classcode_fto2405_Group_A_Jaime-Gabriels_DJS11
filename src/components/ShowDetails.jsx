@@ -1,31 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import AudioPlayer from './AudioPlayer';
 
-const API_URL = 'https://podcast-api.netlify.app/genre/id';
+const API_URL = 'https://podcast-api.netlify.app/id/';
 
 function ShowDetails() {
   const [show, setShow] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedEpisode, setSelectedEpisode] = useState(null);
   const { id } = useParams();
 
-  useEffect(() => {
-    fetchShowDetails();
-  }, [id]);
+  // ... (keep existing fetchShowDetails, useEffect, checkIfFavorite, and toggleFavorite functions)
 
-  const fetchShowDetails = async () => {
-    try {
-      const response = await fetch(`${API_URL}${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch show details');
-      }
-      const data = await response.json();
-      setShow(data);
-      setIsLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setIsLoading(false);
-    }
+  const handleEpisodeSelect = (episode) => {
+    setSelectedEpisode(episode);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -36,6 +26,9 @@ function ShowDetails() {
     <div className="show-details">
       <h1>{show.title}</h1>
       <img src={show.image} alt={show.title} />
+      <button onClick={toggleFavorite} className={`favorite-button ${isFavorite ? 'is-favorite' : ''}`}>
+        {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+      </button>
       <p>{show.description}</p>
       <h2>Seasons</h2>
       {show.seasons.map((season) => (
@@ -45,12 +38,19 @@ function ShowDetails() {
             {season.episodes.map((episode) => (
               <li key={episode.episode}>
                 Episode {episode.episode}: {episode.title}
+                <button onClick={() => handleEpisodeSelect(episode)}>Play</button>
               </li>
             ))}
           </ul>
         </div>
       ))}
-      <Link to="/shows">Back to Shows</Link>
+      {selectedEpisode && (
+        <div className="selected-episode">
+          <h3>Now Playing: {selectedEpisode.title}</h3>
+          <AudioPlayer episode={selectedEpisode} />
+        </div>
+      )}
+      <Link to="/shows" className="back-link">Back to Shows</Link>
     </div>
   );
 }

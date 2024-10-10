@@ -1,9 +1,21 @@
-import { useState, useRef } from 'react';
-function AudioPlayer() {
+import React, { useState, useRef, useEffect } from 'react';
+
+function AudioPlayer({ episode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.addEventListener('timeupdate', updateTime);
+      audioRef.current.addEventListener('loadedmetadata', setAudioDuration);
+      return () => {
+        audioRef.current.removeEventListener('timeupdate', updateTime);
+        audioRef.current.removeEventListener('loadedmetadata', setAudioDuration);
+      };
+    }
+  }, [episode]);
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -14,33 +26,38 @@ function AudioPlayer() {
     setIsPlaying(!isPlaying);
   };
 
-  const handleTimeUpdate = () => {
+  const updateTime = () => {
     setCurrentTime(audioRef.current.currentTime);
   };
 
-  const handleLoadedMetadata = () => {
+  const setAudioDuration = () => {
     setDuration(audioRef.current.duration);
+  };
+
+  const handleSeek = (e) => {
+    const time = parseFloat(e.target.value);
+    setCurrentTime(time);
+    audioRef.current.currentTime = time;
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
   return (
     <div className="audio-player">
-      <audio
-        ref={audioRef}
-        src="/path-to-audio-file.mp3"
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-      />
+      <audio ref={audioRef} src={episode.file} />
       <button onClick={togglePlay}>{isPlaying ? 'Pause' : 'Play'}</button>
       <input
         type="range"
         min={0}
         max={duration}
         value={currentTime}
-        onChange={(e) => {
-          audioRef.current.currentTime = e.target.value;
-        }}
+        onChange={handleSeek}
       />
-      <span>{Math.floor(currentTime)} / {Math.floor(duration)}</span>
+      <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
     </div>
   );
 }

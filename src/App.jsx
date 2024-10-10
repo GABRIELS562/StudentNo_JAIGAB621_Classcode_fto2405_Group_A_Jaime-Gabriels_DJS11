@@ -1,12 +1,38 @@
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { blackA, mauve, violet } from '@radix-ui/colors';
 import ShowList from './components/ShowList';
 import ShowDetails from './components/ShowDetails';
+import Favorites from './components/Favorites';
 import './App.css';
 
-// ... (RadixColors and other components remain the same)
+const DEMO_AUDIO_URL = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; // Replace with your demo audio URL
+
+function RadixColors() {
+  return (
+    <style>
+      {`:root {
+        ${Object.entries({...blackA, ...mauve, ...violet}).map(([key, value]) => `--${key}: ${value};`).join('\n')}
+      }`}
+    </style>
+  );
+}
+
+function Home() {
+  return <h1>Welcome to the Podcast App</h1>;
+}
 
 function App() {
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+
+  const playAudio = (showId, showTitle) => {
+    if (currentlyPlaying && currentlyPlaying.id === showId) {
+      setCurrentlyPlaying(null);
+    } else {
+      setCurrentlyPlaying({ id: showId, title: showTitle });
+    }
+  };
+
   return (
     <Router>
       <RadixColors />
@@ -21,10 +47,17 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/shows" element={<ShowList />} />
-          <Route path="/show/:id" element={<ShowDetails />} />
-          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/shows" element={<ShowList playAudio={playAudio} />} />
+          <Route path="/show/:id" element={<ShowDetails playAudio={playAudio} />} />
+          <Route path="/favorites" element={<Favorites playAudio={playAudio} />} />
         </Routes>
+
+        {currentlyPlaying && (
+          <div className="audio-player">
+            <p>Now Playing: {currentlyPlaying.title}</p>
+            <audio src={DEMO_AUDIO_URL} autoPlay controls />
+          </div>
+        )}
       </div>
     </Router>
   );
