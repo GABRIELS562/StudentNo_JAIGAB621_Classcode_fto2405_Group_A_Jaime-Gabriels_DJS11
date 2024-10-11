@@ -429,3 +429,29 @@ body {
   padding: 10px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
+.show-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sort-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  background-color: var(--violet9);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.sort-toggle:hover {
+  background-color: var(--violet10);
+}
+
+/* ... rest of your existing styles ... */

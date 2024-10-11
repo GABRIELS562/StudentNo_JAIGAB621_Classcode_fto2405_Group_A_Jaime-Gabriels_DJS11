@@ -25,7 +25,6 @@ function Home({ playAudio }) {
       setShows(data.slice(0, 10)); // Only take the first 10 shows for the carousel
       setIsLoading(false);
     } catch (err) {
-      console.error('Error fetching shows:', err);
       setError(err.message);
       setIsLoading(false);
     }
@@ -54,11 +53,11 @@ function Home({ playAudio }) {
               <img src={show.image} alt={show.title} />
               <div className="carousel-item-content">
                 <h3>{show.title}</h3>
-                <p>{show.description ? show.description.slice(0, 100) + '...' : 'No description available'}</p>
-                <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
-                <button onClick={() => playAudio(show.id, show.title)} className="play-button">
-                  Play
-                </button>
+                <p>{show.description ? (show.description.length > 100 ? show.description.substring(0, 100) + '...' : show.description) : 'No description available'}</p>
+                <div className="carousel-buttons">
+                  <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
+                  <button onClick={() => playAudio(show.id, show.title)} className="play-button">Play</button>
+                </div>
               </div>
             </div>
           ))}

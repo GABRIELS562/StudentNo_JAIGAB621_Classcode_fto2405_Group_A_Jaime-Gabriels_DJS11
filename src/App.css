@@ -1,346 +1,11 @@
 @import '@radix-ui/themes/styles.css';
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #a8a7a7;
-  color: white;
-}
-
-.app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-nav ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  background-color: #fff;
-  border-bottom: 1px solid #ddd;
-}
-
-nav ul li {
-  margin-right: 20px;
-}
-
-nav ul li a {
-  color: #333;
-  text-decoration: none;
-  padding: 10px 15px;
-  display: inline-block;
-}
-
-nav ul li a:hover {
-  background-color: #f0f0f0;
-}
-
-/* Home Page and Carousel Styles */
-.home {
-  padding: 20px;
-}
-
-.carousel-container {
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.carousel-item {
-  display: flex !important;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-}
-
-.carousel-item img {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.carousel-item-content {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.carousel-item h3 {
-  margin: 10px 0;
-  font-size: 1.5rem;
-  color: white;
-}
-
-.carousel-item p {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 20px;
-}
-
-/* Show List Styles */
-.show-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.show-card {
-  background-color: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.show-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.show-card-content {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-}
-
-.show-card h2 {
-  margin: 0 0 10px 0;
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.show-card p {
-  margin: 5px 0;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-/* Show Details Styles */
-.show-details {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  color: black;
-}
-
-.show-details h1 {
-  color: #e8175d;
-  margin-bottom: 20px;
-}
-
-.show-image {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  display: block;
-  margin: 0 auto 20px;
-  border-radius: 8px;
-}
-
-.season {
-  margin-bottom: 30px;
-}
-
-.season h2 {
-  color: #e8175d;
-  border-bottom: 2px solid #e8175d;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-}
-
-.episode-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.episode-item {
-  background-color: #f8f8f8;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.episode-info {
-  flex: 1;
-  color: black;
-}
-
-.episode-info h3 {
-  margin: 0 0 10px 0;
-  color: #333;
-}
-
-.episode-info p {
-  margin: 0;
-  color: #333;
-}
-
-/* Button Styles */
-.view-details-btn, .play-button, .back-link {
-  display: inline-block;
-  padding: 8px 15px;
-  margin: 5px;
-  background-color: #e8175d;
-  color: white;
-  text-decoration: none;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.view-details-btn:hover, .play-button:hover, .back-link:hover {
-  background-color: #c01450;
-}
-
-.favorite-button {
-  background-color: transparent;
-  border: none;
-  font-size: 1.2em;
-  color: #ffc107;
-  cursor: pointer;
-  padding: 0 5px;
-}
-
-.favorite-button.is-favorite {
-  color: #ff9800;
-}
-
-/* Audio Player Styles */
-.audio-player {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #f8f9fa;
-  padding: 10px;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.audio-player p {
-  margin: 0 0 10px 0;
-  font-weight: bold;
-  color: #333;
-}
-
-.audio-player audio {
-  width: 100%;
-}
-
-/* Utility Classes */
-.loading, .error, .not-found {
-  text-align: center;
-  font-size: 1.2rem;
-  margin-top: 50px;
-  color: #e8175d;
-}
-.favorite-button {
-  background-color: transparent;
-  border: none;
-  font-size: 1.2em;
-  color: #ffc107;
-  cursor: pointer;
-  padding: 0 5px;
-}
-
-.favorite-button.is-favorite {
-  color: #ff9800;
-}
-.favorites {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.favorites h1 {
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.favorites-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.favorite-item {
-  background-color: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.favorite-item img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.favorite-content {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.favorite-content h2 {
-  margin: 0 0 10px 0;
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.favorite-content a,
-.favorite-content button {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: white;
-  text-decoration: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.favorite-content a:hover,
-.favorite-content button:hover {
-  background-color: #0056b3;
-}
-
-.favorite-content .play-button {
-  background-color: #28a745;
-}
-
-.favorite-content .play-button:hover {
-  background-color: #218838;
-}
-
-.favorite-content .favorite-button {
-  background-color: #dc3545;
-}
-
-.favorite-content .favorite-button:hover {
-  background-color: #c82333;
-}
-
 
 body {
-  margin: 0;
   font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  background-color: var(--gray-1);
+  color: var(--gray-12);
 }
 
 .app {
@@ -349,6 +14,7 @@ body {
   padding: 20px;
 }
 
+/* Navbar Styles */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -356,16 +22,7 @@ body {
   padding: 10px 20px;
   margin-bottom: 20px;
   border-radius: 8px;
-}
-
-.navbar.light {
   background-color: var(--gray-3);
-  color: var(--gray-12);
-}
-
-.navbar.dark {
-  background-color: var(--gray-12);
-  color: var(--gray-1);
 }
 
 .navbar ul {
@@ -396,29 +53,400 @@ body {
   color: inherit;
 }
 
-.show-list, .favorites-list {
+/* Show List Styles */
+.show-list-container {
+  background-color: var(--gray-2);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.show-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.show-list-header h1 {
+  margin: 0;
+  color: var(--gray-12);
+}
+
+.sort-toggle {
+  background-color: transparent;
+  color: red;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: bold;
+  transition: transform 0.3s, text-shadow 0.3s;
+  text-shadow: 
+    -1px -1px 0 #000,  
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000;
+}
+
+.sort-toggle:hover {
+  transform: scale(1.05);
+  text-shadow: 
+    -2px -2px 0 #000,  
+     2px -2px 0 #000,
+    -2px  2px 0 #000,
+     2px  2px 0 #000;
+}
+
+.show-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
 }
 
-.show-card, .favorite-item {
-  background-color: var(--gray-1);
+.show-card {
+  background-color: var(--gray-3);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
 }
 
-.show-card img, .favorite-item img {
+.show-card:hover {
+  transform: translateY(-5px);
+}
+
+.show-card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
 }
 
-.show-card-content, .favorite-content {
+.show-card-content {
   padding: 15px;
 }
 
+.show-card h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  color: var(--gray-12);
+}
+
+.show-card p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: var(--gray-11);
+}
+
+/* Favorites Styles */
+.favorites {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.favorites h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--gray-12);
+}
+
+.sort-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sort-controls button {
+  padding: 8px 16px;
+  background-color: var(--gray-3);
+  color: var(--gray-12);
+  border: 1px solid var(--gray-7);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.sort-controls button:hover {
+  background-color: var(--gray-4);
+}
+
+.sort-controls button[data-state="active"] {
+  background-color: var(--violet9);
+  color: white;
+  border-color: var(--violet9);
+}
+
+.favorites-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.favorite-item {
+  background-color: var(--gray-3);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.favorite-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.favorite-item h3 {
+  margin: 10px;
+  font-size: 1.2rem;
+  color: var(--gray-12);
+}
+
+.favorite-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.favorite-content p {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--gray-11);
+}
+
+/* Button Styles */
+.view-details-btn, .play-button, .remove-favorite-button, .back-link {
+  display: inline-block;
+  padding: 8px 15px;
+  margin: 5px 10px;
+  background-color: var(--violet9);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: bold;
+  text-align: center;
+}
+
+.view-details-btn:hover, .play-button:hover, .remove-favorite-button:hover, .back-link:hover {
+  background-color: var(--violet10);
+}
+
+.play-button {
+  background-color: var(--green9);
+}
+
+.remove-favorite-button {
+  background-color: var(--red9);
+}
+
+.favorite-button {
+  background-color: transparent;
+  border: none;
+  font-size: 1.2em;
+  color: var(--amber9);
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.favorite-button.is-favorite {
+  color: var(--amber11);
+}
+
+/* Audio Player Styles */
+.audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--gray-3);
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.audio-player p {
+  margin: 0 0 10px 0;
+  font-weight: bold;
+  color: var(--gray-12);
+}
+
+.audio-player audio {
+  width: 100%;
+}
+
+/* Utility Classes */
+.loading, .error, .not-found {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 50px;
+  color: var(--violet11);
+}
+
+/* Dark theme overrides */
+.dark {
+  background-color: var(--gray-1);
+  color: var(--gray-12);
+}
+
+.dark .navbar,
+.dark .show-card,
+.dark .favorite-item,
+.dark .audio-player {
+  background-color: var(--gray-3);
+}
+
+.dark .sort-toggle {
+  color: #ff6b6b;
+  text-shadow: 
+    -1px -1px 0 #fff,  
+     1px -1px 0 #fff,
+    -1px  1px 0 #fff,
+     1px  1px 0 #fff;
+}
+
+.dark .sort-toggle:hover {
+  text-shadow: 
+    -2px -2px 0 #fff,  
+     2px -2px 0 #fff,
+    -2px  2px 0 #fff,
+     2px  2px 0 #fff;
+}
+.filter-sort-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.genre-filter {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.genre-filter:hover {
+  background-color: #444;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .filter-sort-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .genre-filter {
+    margin-bottom: 10px;
+  }
+
+  .sort-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+.show-list-container {
+  padding: 20px;
+}
+
+.show-list-container h1 {
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.filter-sort-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.genre-filter-container {
+  display: flex;
+  align-items: center;
+}
+
+.genre-filter-container label {
+  margin-right: 10px;
+  color: #ffffff;
+}
+
+.genre-filter {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.genre-filter:hover {
+  background-color: #444;
+}
+
+.sort-controls {
+  display: flex;
+  justify-content: space-between;
+  width: 70%; /* Adjust this value to control the spacing */
+}
+
+.sort-controls button {
+  padding: 8px 16px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sort-controls button:hover,
+.sort-controls button.active {
+  background-color: #555;
+}
+
+.show-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .filter-sort-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .genre-filter-container {
+    margin-bottom: 15px;
+  }
+
+  .sort-controls {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .sort-controls button {
+    flex: 1 1 calc(50% - 5px);
+  }
+}
 .audio-player {
   position: fixed;
   bottom: 0;
@@ -426,34 +454,27 @@ body {
   right: 0;
   background-color: var(--gray-2);
   padding: 10px;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-}
-/* ... (previous styles remain the same) ... */
-
-.show-card-actions {
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  justify-content: space-between;
 }
 
-.view-details-btn {
-  text-decoration: none;
-  color: var(--gray-12);
-  font-weight: 500;
+.audio-info {
+  flex: 1;
 }
 
-.play-button, .favorite-button {
-  padding: 5px 10px;
-  cursor: pointer;
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.favorite-button {
-  background: none;
-  border: none;
-  color: var(--gray-11);
+.progress-bar {
+  width: 300px;
 }
 
-.favorite-button:hover {
-  color: var(--gray-12);
+/* Adjust main content to not be hidden behind the audio player */
+.app {
+  padding-bottom: 80px; /* Adjust this value based on your audio player's height */
 }
