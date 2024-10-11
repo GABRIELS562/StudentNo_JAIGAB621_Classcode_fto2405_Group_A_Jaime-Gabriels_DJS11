@@ -1,20 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
-function Favorites() {
-  const [favorites, setFavorites] = useState([]);
-
-  useEffect(() => {
-    const storedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    setFavorites(storedFavorites);
-  }, []);
-
-  const removeFavorite = (id) => {
-    const updatedFavorites = favorites.filter(fav => fav.id !== id);
-    setFavorites(updatedFavorites);
-    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-  };
-
+function Favorites({ playAudio, favorites, toggleFavorite }) {
   return (
     <div className="favorites">
       <h1>Your Favorites</h1>
@@ -27,8 +14,11 @@ function Favorites() {
               <img src={show.image} alt={show.title} />
               <div className="favorite-content">
                 <h2>{show.title}</h2>
-                <Link to={`/show/${show.id}`}>View Details</Link>
-                <button onClick={() => removeFavorite(show.id)}>Remove from Favorites</button>
+                <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
+                <button onClick={() => playAudio(show.id, show.title)} className="play-button">Play</button>
+                <button onClick={() => toggleFavorite(show)} className="favorite-button">
+                  Remove from Favorites
+                </button>
               </div>
             </div>
           ))}
