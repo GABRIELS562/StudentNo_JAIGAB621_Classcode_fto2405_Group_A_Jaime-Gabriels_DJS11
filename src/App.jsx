@@ -4,7 +4,7 @@ import { Theme } from '@radix-ui/themes';
 import Home from './components/Home';
 import ShowList from './components/ShowList';
 import ShowDetails from './components/ShowDetails';
-import FavoritesManager from './components/FavoritesManager';
+import Favorites from './components/Favorites';
 import ThemeToggle from './components/ThemeToggle';
 import AudioPlayer from './components/AudioPlayer';
 import CompletedEpisodes from './components/CompletedEpisodes';
@@ -16,7 +16,6 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [completedEpisodes, setCompletedEpisodes] = useState([]);
   const [theme, setTheme] = useState('light');
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   useEffect(() => {
     const storedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -26,44 +25,14 @@ function App() {
     setFavorites(storedFavorites);
     setCompletedEpisodes(storedCompletedEpisodes);
     setTheme(storedTheme);
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
   }, []);
 
-  const handleBeforeUnload = (event) => {
-    if (isAudioPlaying) {
-      event.preventDefault();
-      event.returnValue = '';
-    }
-  };
-
-  const playAudio = (episode) => {
-    setCurrentlyPlaying(episode);
-    setIsAudioPlaying(true);
-  };
-
-  const pauseAudio = () => {
-    setIsAudioPlaying(false);
-  };
-
-  const resumeAudio = () => {
-    setIsAudioPlaying(true);
-  };
-
-  const closeAudioPlayer = () => {
-    setCurrentlyPlaying(null);
-    setIsAudioPlaying(false);
-  };
-
-  const markEpisodeAsCompleted = (episode) => {
-    setCompletedEpisodes(prevCompleted => {
-      const newCompleted = [...prevCompleted, episode];
-      localStorage.setItem('completedEpisodes', JSON.stringify(newCompleted));
-      return newCompleted;
+  const playAudio = (showId, episodeTitle, episodeFile) => {
+    setCurrentlyPlaying({
+      id: `${showId}-${episodeTitle}`,
+      title: episodeTitle,
+      show: showId,
+      file: episodeFile
     });
   };
 
@@ -91,6 +60,14 @@ function App() {
     localStorage.setItem('theme', newTheme);
   };
 
+  const markEpisodeAsCompleted = (episode) => {
+    setCompletedEpisodes(prevCompleted => {
+      const newCompleted = [...prevCompleted, episode];
+      localStorage.setItem('completedEpisodes', JSON.stringify(newCompleted));
+      return newCompleted;
+    });
+  };
+
   return (
     <Theme appearance={theme}>
       <Router>
@@ -105,60 +82,58 @@ function App() {
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           </nav>
 
-          <Routes>
-            <Route path="/" element={<Home playAudio={playAudio} />} />
-            <Route 
-              path="/shows" 
-              element={
-                <ShowList 
-                  playAudio={playAudio} 
-                  toggleFavorite={toggleFavorite} 
-                  isFavorite={isFavorite}
-                  completedEpisodes={completedEpisodes}
-                />
-              } 
-            />
-            <Route 
-              path="/show/:id" 
-              element={
-                <ShowDetails 
-                  playAudio={playAudio} 
-                  toggleFavorite={toggleFavorite} 
-                  isFavorite={isFavorite}
-                  completedEpisodes={completedEpisodes}
-                />
-              } 
-            />
-            <Route 
-              path="/favorites" 
-              element={
-                <FavoritesManager 
-                  playAudio={playAudio} 
-                  favorites={favorites}
-                  toggleFavorite={toggleFavorite}
-                  completedEpisodes={completedEpisodes}
-                />
-              } 
-            />
-            <Route 
-              path="/completed" 
-              element={
-                <CompletedEpisodes 
-                  completedEpisodes={completedEpisodes}
-                  playAudio={playAudio}
-                />
-              } 
-            />
-          </Routes>
+          <main className="content">
+            <Routes>
+              <Route path="/" element={<Home playAudio={playAudio} />} />
+              <Route 
+                path="/shows" 
+                element={
+                  <ShowList 
+                    playAudio={playAudio} 
+                    toggleFavorite={toggleFavorite} 
+                    isFavorite={isFavorite}
+                  />
+                } 
+              />
+              <Route 
+                path="/show/:id" 
+                element={
+                  <ShowDetails 
+                    playAudio={playAudio} 
+                    toggleFavorite={toggleFavorite} 
+                    isFavorite={isFavorite}
+                  />
+                } 
+              />
+              <Route 
+                path="/favorites" 
+                element={
+                  <Favorites 
+                    playAudio={playAudio} 
+                    favorites={favorites}
+                    toggleFavorite={toggleFavorite}
+                  />
+                } 
+              />
+              <Route 
+                path="/completed" 
+                element={
+                  <CompletedEpisodes 
+                    completedEpisodes={completedEpisodes}
+                    playAudio={playAudio}
+                  />
+                } 
+              />
+            </Routes>
+          </main>
 
           {currentlyPlaying && (
-            <AudioPlayer 
-              currentEpisode={currentlyPlaying}
-              onClose={closeAudioPlayer}
-              onPause={pauseAudio}
-              onPlay={resumeAudio}
-              onComplete={markEpisodeAsCompleted}
-            />
+            <div className="fixed-audio-player">
+              <AudioPlayer 
+                currentEpisode={currentlyPlaying}
+                onComplete={() => markEpisodeAsCompleted(currentlyPlaying)}
+              />
+            </div>
           )}
         </div>
       </Router>

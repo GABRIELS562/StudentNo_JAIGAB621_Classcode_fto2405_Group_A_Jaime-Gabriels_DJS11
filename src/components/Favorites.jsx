@@ -52,6 +52,15 @@ function Favorites({ playAudio, favorites, toggleFavorite }) {
     setSelectedGenre(event.target.value);
   };
 
+  const handlePlayAudio = (show) => {
+    if (show.seasons && show.seasons.length > 0 && show.seasons[0].episodes && show.seasons[0].episodes.length > 0) {
+      const episode = show.seasons[0].episodes[0];
+      playAudio(show.id, episode.title, episode.file);
+    } else {
+      console.error('No episodes found for this show');
+    }
+  };
+
   return (
     <div className="favorites">
       <h1>Your Favorites</h1>
@@ -88,7 +97,7 @@ function Favorites({ playAudio, favorites, toggleFavorite }) {
             <p>Last updated: {new Date(show.updated).toLocaleDateString()}</p>
             <p>Genres: {show.genres.join(', ')}</p>
             <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
-            <Button onClick={() => playAudio(show.id, show.title)} className="play-button">Play</Button>
+            <Button onClick={() => handlePlayAudio(show)} className="play-button">Play</Button>
             <Button onClick={() => toggleFavorite(show)} className="remove-favorite-button">
               Remove from Favorites
             </Button>

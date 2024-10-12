@@ -77,6 +77,28 @@ function ShowList({ playAudio, toggleFavorite, isFavorite }) {
     setSelectedGenre(event.target.value);
   };
 
+  const handlePlayAudio = async (show) => {
+    try {
+      const response = await fetch(`https://podcast-api.netlify.app/id/${show.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch show details');
+      }
+      const showDetails = await response.json();
+      console.log("Fetched show details:", showDetails);
+
+      if (showDetails.seasons && showDetails.seasons.length > 0 &&
+          showDetails.seasons[0].episodes && showDetails.seasons[0].episodes.length > 0) {
+        const episode = showDetails.seasons[0].episodes[0];
+        console.log("Playing episode:", episode);
+        playAudio(show.id, episode.title, episode.file);
+      } else {
+        console.error('No episodes found for this show');
+      }
+    } catch (error) {
+      console.error('Error fetching show details:', error);
+    }
+  };
+
   if (isLoading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
@@ -118,7 +140,7 @@ function ShowList({ playAudio, toggleFavorite, isFavorite }) {
               <p>Genres: {show.genres.join(', ')}</p>
               <div className="show-card-actions">
                 <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
-                <Button onClick={() => playAudio(show.id, show.title)} className="play-button">Play</Button>
+                <Button onClick={() => handlePlayAudio(show)} className="play-button">Play</Button>
                 <Button 
                   onClick={() => toggleFavorite(show)} 
                   className={`favorite-button ${isFavorite(show.id) ? 'is-favorite' : ''}`}

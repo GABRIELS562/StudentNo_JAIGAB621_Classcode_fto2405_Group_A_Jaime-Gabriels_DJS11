@@ -478,3 +478,123 @@ body {
 .app {
   padding-bottom: 80px; /* Adjust this value based on your audio player's height */
 }
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: var(--gray-2);
+}
+
+.navbar ul {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar ul li {
+  margin-right: 20px;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: var(--gray-12);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.audio-player {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.audio-info {
+  margin-right: 10px;
+}
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* ... (rest of your existing styles) */.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: var(--gray-2);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  margin-top: 60px; /* Adjust this value based on the actual height of your navbar */
+  padding: 20px;
+  flex: 1;
+}
+
+.audio-player {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.navbar {
+  /* ... existing styles ... */
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  padding-bottom: 100px; /* Adjust this value based on the height of your audio player */
+}
+
+.fixed-audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--gray-2);
+  padding: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* ... rest of your existing styles ... */
+/* ... rest of your existing styles ... */

@@ -56,9 +56,9 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite }) {
               <li key={episode.episode} className="episode-item">
                 <h4>Episode {episode.episode}: {episode.title}</h4>
                 <p>{episode.description}</p>
-                <Button onClick={() => playAudio(show.id, episode.title)}>
-                  Play
-                </Button>
+                <Button onClick={() => playAudio(show.id, episode.title, episode.file)}>
+  Play
+</Button>
               </li>
             ))}
           </ul>

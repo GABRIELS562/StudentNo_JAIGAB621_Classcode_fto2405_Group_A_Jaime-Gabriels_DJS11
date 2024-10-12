@@ -455,3 +455,75 @@ body {
 }
 
 /* ... rest of your existing styles ... */
+/* Existing styles... */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: var(--gray-2);
+}
+
+.navbar ul {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar ul li {
+  margin-right: 20px;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: var(--gray-12);
+}
+
+.nav-audio-player {
+  flex-grow: 1;
+  max-width: 500px;
+  margin: 0 20px;
+}
+
+.audio-player {
+  display: flex;
+  align-items: center;
+  background-color: var(--gray-3);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.audio-info {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.audio-info h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.audio-info p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--gray-11);
+}
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar {
+  width: 100px;
+  margin: 0 10px;
+}
+
+/* Adjust main content to account for the fixed navbar */
+.app > :not(.navbar) {
+  margin-top: 60px; /* Adjust this value based on your navbar height */
+}
+
+/* ... (rest of your existing styles) */
