@@ -1,89 +1,97 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@radix-ui/themes';
+import { Button, Flex, Text, Slider } from '@radix-ui/themes';
 import { PlayIcon, PauseIcon } from '@radix-ui/react-icons';
+import './AudioPlayer.css'; // Make sure to create this CSS file
 
-function AudioPlayer({ currentEpisode, onComplete }) {
+function AudioPlayer({ currentEpisode, onComplete, updatePlaybackPosition }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(currentEpisode.currentTime || 0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
 
   useEffect(() => {
-    if (currentEpisode && currentEpisode.file) {
+    if (audioRef.current) {
+      audioRef.current.addEventListener('timeupdate', updateTime);
+      audioRef.current.addEventListener('loadedmetadata', setAudioDuration);
+      audioRef.current.addEventListener('ended', handleAudioEnd);
+      return () => {
+        audioRef.current.removeEventListener('timeupdate', updateTime);
+        audioRef.current.removeEventListener('loadedmetadata', setAudioDuration);
+        audioRef.current.removeEventListener('ended', handleAudioEnd);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (currentEpisode) {
       audioRef.current.src = currentEpisode.file;
-      audioRef.current.load();
-      audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+      audioRef.current.currentTime = currentEpisode.currentTime || 0;
+      audioRef.current.play();
       setIsPlaying(true);
     }
   }, [currentEpisode]);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    
-    const setAudioData = () => {
-      setDuration(audio.duration);
-      setCurrentTime(audio.currentTime);
-    };
-
-    const setAudioTime = () => setCurrentTime(audio.currentTime);
-
-    // Add event listeners
-    audio.addEventListener('loadedmetadata', setAudioData);
-    audio.addEventListener('timeupdate', setAudioTime);
-
-    // Clean up event listeners
-    return () => {
-      audio.removeEventListener('loadedmetadata', setAudioData);
-      audio.removeEventListener('timeupdate', setAudioTime);
-    };
-  }, []);
-
   const togglePlay = () => {
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-      setIsPlaying(true);
-    } else {
-      audioRef.current.pause();
-      setIsPlaying(false);
+    if (currentEpisode) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
-  const handleSeek = (e) => {
-    const time = parseFloat(e.target.value);
-    setCurrentTime(time);
-    audioRef.current.currentTime = time;
+  const updateTime = () => {
+    setCurrentTime(audioRef.current.currentTime);
+    updatePlaybackPosition(currentEpisode.id, audioRef.current.currentTime);
+  };
+
+  const setAudioDuration = () => {
+    setDuration(audioRef.current.duration);
+  };
+
+  const handleAudioEnd = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    if (onComplete) {
+      onComplete(currentEpisode);
+    }
   };
 
   const formatTime = (time) => {
-    if (isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  const handleSeek = (value) => {
+    const newTime = value[0];
+    setCurrentTime(newTime);
+    audioRef.current.currentTime = newTime;
+    updatePlaybackPosition(currentEpisode.id, newTime);
   };
 
   if (!currentEpisode) return null;
 
   return (
-    <div className="audio-player">
-      <audio ref={audioRef} onEnded={onComplete} />
-      <div className="audio-info">
-        <p>{currentEpisode.title} - {currentEpisode.show}</p>
-      </div>
-      <div className="audio-controls">
+    <Flex direction="column" gap="2" className="audio-player bold-border">
+      <audio ref={audioRef} />
+      <Text size="2" weight="bold">{currentEpisode.title} - {currentEpisode.show}</Text>
+      <Flex align="center" gap="2">
         <Button onClick={togglePlay} variant="ghost" size="1">
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
         </Button>
-        <input
-          type="range"
-          min="0"
-          max={duration || 0}
-          value={currentTime}
-          onChange={handleSeek}
+        <Slider 
+          value={[currentTime]}
+          max={duration}
+          step={1}
+          onValueChange={handleSeek}
           className="progress-bar"
         />
-        <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
-      </div>
-    </div>
+        <Text size="1">{formatTime(currentTime)} / {formatTime(duration)}</Text>
+      </Flex>
+    </Flex>
   );
 }
 

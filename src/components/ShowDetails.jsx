@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button } from '@radix-ui/themes';
-import { StarFilledIcon, StarIcon } from '@radix-ui/react-icons';
+import { Button, Text, Flex, Box } from '@radix-ui/themes';
+import { StarFilledIcon, StarIcon, PlayIcon } from '@radix-ui/react-icons';
 
 const API_URL = 'https://podcast-api.netlify.app/id/';
 
-function ShowDetails({ playAudio, toggleFavorite, isFavorite }) {
+function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions }) {
   const [show, setShow] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,6 +30,22 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite }) {
     }
   };
 
+  const handleToggleFavorite = (episode, seasonNumber) => {
+    toggleFavorite({
+      ...episode,
+      season: seasonNumber,
+      showId: show.id,
+      showTitle: show.title,
+      image: show.image
+    }, show);
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
   if (isLoading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error: {error}</div>;
   if (!show) return <div className="not-found">Show not found</div>;
@@ -39,33 +55,49 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite }) {
       <h1>{show.title}</h1>
       <img src={show.image} alt={show.title} className="show-image" />
       <p>{show.description}</p>
-      <Button 
-        onClick={() => toggleFavorite(show)}
-        className={`favorite-button ${isFavorite(show.id) ? 'is-favorite' : ''}`}
-      >
-        {isFavorite(show.id) ? <StarFilledIcon /> : <StarIcon />}
-        {isFavorite(show.id) ? 'Remove from Favorites' : 'Add to Favorites'}
-      </Button>
       
       <h2>Seasons</h2>
       {show.seasons.map((season) => (
         <div key={season.season} className="season">
           <h3>Season {season.season}</h3>
           <ul className="episode-list">
-            {season.episodes.map((episode) => (
-              <li key={episode.episode} className="episode-item">
-                <h4>Episode {episode.episode}: {episode.title}</h4>
-                <p>{episode.description}</p>
-                <Button onClick={() => playAudio(show.id, episode.title, episode.file)}>
-  Play
-</Button>
-              </li>
-            ))}
+            {season.episodes.map((episode) => {
+              const episodeId = `${show.id}-${episode.title}`;
+              const playbackPosition = playbackPositions[episodeId];
+              return (
+                <li key={episode.episode} className="episode-item">
+                  <Flex justify="between" align="center">
+                    <Box>
+                      <Text as="h4" size="3" weight="bold">Episode {episode.episode}: {episode.title}</Text>
+                      <Text size="2">{episode.description}</Text>
+                      {playbackPosition && (
+                        <Text size="2" color="gray">
+                          Last played: {formatTime(playbackPosition)}
+                        </Text>
+                      )}
+                    </Box>
+                    <Flex gap="2">
+                      <Button onClick={() => playAudio(show.id, episode.title, episode.file)}>
+                        <PlayIcon /> Play
+                      </Button>
+                      <Button 
+                        onClick={() => handleToggleFavorite(episode, season.season)}
+                        variant="ghost"
+                      >
+                        {isFavorite(show.id, episode.title) ? <StarFilledIcon /> : <StarIcon />}
+                      </Button>
+                    </Flex>
+                  </Flex>
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}
       
-      <Link to="/shows" className="back-link">Back to Shows</Link>
+      <Link to="/shows" className="back-link">
+        <Button variant="outline">Back to Shows</Button>
+      </Link>
     </div>
   );
 }

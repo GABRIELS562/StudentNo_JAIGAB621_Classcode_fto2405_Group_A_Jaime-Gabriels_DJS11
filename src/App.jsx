@@ -8,6 +8,7 @@ import Favorites from './components/Favorites';
 import ThemeToggle from './components/ThemeToggle';
 import AudioPlayer from './components/AudioPlayer';
 import CompletedEpisodes from './components/CompletedEpisodes';
+import SearchBar from './components/SearchBar';
 import '@radix-ui/themes/styles.css';
 import './App.css';
 
@@ -16,42 +17,89 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [completedEpisodes, setCompletedEpisodes] = useState([]);
   const [theme, setTheme] = useState('light');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [playbackPositions, setPlaybackPositions] = useState({});
 
   useEffect(() => {
     const storedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     const storedCompletedEpisodes = JSON.parse(localStorage.getItem('completedEpisodes') || '[]');
     const storedTheme = localStorage.getItem('theme') || 'light';
+    const storedPlaybackPositions = JSON.parse(localStorage.getItem('playbackPositions') || '{}');
     
     setFavorites(storedFavorites);
     setCompletedEpisodes(storedCompletedEpisodes);
     setTheme(storedTheme);
+    setPlaybackPositions(storedPlaybackPositions);
   }, []);
 
   const playAudio = (showId, episodeTitle, episodeFile) => {
+    const episodeId = `${showId}-${episodeTitle}`;
     setCurrentlyPlaying({
-      id: `${showId}-${episodeTitle}`,
+      id: episodeId,
       title: episodeTitle,
       show: showId,
-      file: episodeFile
+      file: episodeFile,
+      currentTime: playbackPositions[episodeId] || 0
     });
   };
 
-  const toggleFavorite = (show) => {
+  const updatePlaybackPosition = (episodeId, currentTime) => {
+    setPlaybackPositions(prev => {
+      const updated = { ...prev, [episodeId]: currentTime };
+      localStorage.setItem('playbackPositions', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const toggleFavorite = (item, show = null) => {
     setFavorites(prevFavorites => {
-      const index = prevFavorites.findIndex(fav => fav.id === show.id);
       let newFavorites;
-      if (index > -1) {
-        newFavorites = prevFavorites.filter(fav => fav.id !== show.id);
+      if (item.episode || (show && item.title)) {
+        // It's an episode
+        const favId = show ? `${show.id}-${item.title}` : item.id;
+        const index = prevFavorites.findIndex(fav => fav.id === favId);
+        if (index > -1) {
+          newFavorites = prevFavorites.filter(fav => fav.id !== favId);
+        } else {
+          newFavorites = [...prevFavorites, { 
+            id: favId,
+            showId: show ? show.id : item.showId,
+            showTitle: show ? show.title : item.showTitle,
+            title: item.title,
+            season: item.season,
+            episode: item.episode,
+            file: item.file,
+            image: show ? show.image : item.image,
+            dateAdded: new Date().toISOString(),
+            updated: show ? show.updated : item.updated
+          }];
+        }
       } else {
-        newFavorites = [...prevFavorites, { ...show, dateAdded: new Date().toISOString() }];
+        // It's a show
+        const index = prevFavorites.findIndex(fav => fav.id === item.id);
+        if (index > -1) {
+          newFavorites = prevFavorites.filter(fav => fav.id !== item.id);
+        } else {
+          newFavorites = [...prevFavorites, { 
+            id: item.id,
+            showId: item.id,
+            showTitle: item.title,
+            image: item.image,
+            dateAdded: new Date().toISOString(),
+            updated: item.updated
+          }];
+        }
       }
       localStorage.setItem('favorites', JSON.stringify(newFavorites));
       return newFavorites;
     });
   };
 
-  const isFavorite = (showId) => {
-    return favorites.some(fav => fav.id === showId);
+  const isFavorite = (showId, episodeTitle) => {
+    if (episodeTitle) {
+      return favorites.some(fav => fav.id === `${showId}-${episodeTitle}`);
+    }
+    return favorites.some(fav => fav.showId === showId);
   };
 
   const toggleTheme = () => {
@@ -73,6 +121,10 @@ function App() {
     localStorage.removeItem('completedEpisodes');
   };
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
   return (
     <Theme appearance={theme}>
       <Router>
@@ -84,12 +136,13 @@ function App() {
               <li><Link to="/favorites">Favorites</Link></li>
               <li><Link to="/completed">Completed Episodes</Link></li>
             </ul>
+            <SearchBar onSearch={handleSearch} searchQuery={searchQuery} />
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           </nav>
 
           <main className="content">
             <Routes>
-              <Route path="/" element={<Home playAudio={playAudio} />} />
+              <Route path="/" element={<Home playAudio={playAudio} searchQuery={searchQuery} playbackPositions={playbackPositions} />} />
               <Route 
                 path="/shows" 
                 element={
@@ -97,6 +150,8 @@ function App() {
                     playAudio={playAudio} 
                     toggleFavorite={toggleFavorite} 
                     isFavorite={isFavorite}
+                    searchQuery={searchQuery}
+                    playbackPositions={playbackPositions}
                   />
                 } 
               />
@@ -107,6 +162,7 @@ function App() {
                     playAudio={playAudio} 
                     toggleFavorite={toggleFavorite} 
                     isFavorite={isFavorite}
+                    playbackPositions={playbackPositions}
                   />
                 } 
               />
@@ -117,6 +173,9 @@ function App() {
                     playAudio={playAudio} 
                     favorites={favorites}
                     toggleFavorite={toggleFavorite}
+                    searchQuery={searchQuery}
+                    onSearch={handleSearch}
+                    playbackPositions={playbackPositions}
                   />
                 } 
               />
@@ -127,6 +186,7 @@ function App() {
                     completedEpisodes={completedEpisodes}
                     playAudio={playAudio}
                     resetListeningHistory={resetListeningHistory}
+                    searchQuery={searchQuery}
                   />
                 } 
               />
@@ -138,6 +198,7 @@ function App() {
               <AudioPlayer 
                 currentEpisode={currentlyPlaying}
                 onComplete={() => markEpisodeAsCompleted(currentlyPlaying)}
+                updatePlaybackPosition={updatePlaybackPosition}
               />
             </div>
           )}

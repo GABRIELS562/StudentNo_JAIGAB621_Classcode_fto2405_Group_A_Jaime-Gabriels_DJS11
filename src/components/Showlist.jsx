@@ -5,7 +5,7 @@ import { StarFilledIcon, StarIcon } from '@radix-ui/react-icons';
 
 const API_URL = 'https://podcast-api.netlify.app/shows';
 
-function ShowList({ playAudio, toggleFavorite, isFavorite }) {
+function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery }) {
   const [shows, setShows] = useState([]);
   const [filteredShows, setFilteredShows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +20,7 @@ function ShowList({ playAudio, toggleFavorite, isFavorite }) {
 
   useEffect(() => {
     filterAndSortShows();
-  }, [shows, sortOrder, selectedGenre]);
+  }, [shows, sortOrder, selectedGenre, searchQuery]);
 
   const fetchShows = async () => {
     try {
@@ -46,10 +46,22 @@ function ShowList({ playAudio, toggleFavorite, isFavorite }) {
 
   const filterAndSortShows = () => {
     let filtered = shows;
+    
+    // Filter by search query
+    if (searchQuery) {
+      const lowercaseQuery = searchQuery.toLowerCase();
+      filtered = filtered.filter(show => 
+        show.title.toLowerCase().includes(lowercaseQuery) ||
+        show.description.toLowerCase().includes(lowercaseQuery)
+      );
+    }
+    
+    // Filter by genre
     if (selectedGenre !== 'All') {
-      filtered = shows.filter(show => show.genres.includes(parseInt(selectedGenre)));
+      filtered = filtered.filter(show => show.genres.includes(parseInt(selectedGenre)));
     }
 
+    // Sort
     switch (sortOrder) {
       case 'titleAZ':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
@@ -102,59 +114,42 @@ function ShowList({ playAudio, toggleFavorite, isFavorite }) {
   if (isLoading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
-  return (
-    <div className="show-list-container">
-      <h1>All Podcast Shows</h1>
-      <div className="filter-sort-controls">
-        <div className="genre-filter">
-          <label htmlFor="genre-select">Genre: </label>
-          <select id="genre-select" value={selectedGenre} onChange={handleGenreChange}>
-            {genres.map(genre => (
-              <option key={genre} value={genre}>{genre === 'All' ? 'All Genres' : genre}</option>
-            ))}
-          </select>
-        </div>
-        <div className="sort-controls">
-          <Button onClick={() => handleSortChange('recentlyUpdated')} variant={sortOrder === 'recentlyUpdated' ? 'solid' : 'outline'}>
-            Most Recently Updated
-          </Button>
-          <Button onClick={() => handleSortChange('leastRecentlyUpdated')} variant={sortOrder === 'leastRecentlyUpdated' ? 'solid' : 'outline'}>
-            Least Recently Updated
-          </Button>
-          <Button onClick={() => handleSortChange('titleAZ')} variant={sortOrder === 'titleAZ' ? 'solid' : 'outline'}>
-            Title A-Z
-          </Button>
-          <Button onClick={() => handleSortChange('titleZA')} variant={sortOrder === 'titleZA' ? 'solid' : 'outline'}>
-            Title Z-A
-          </Button>
-        </div>
-      </div>
-      <div className="show-list">
-        {filteredShows.map(show => (
-          <div key={show.id} className="show-card">
-            <img src={show.image} alt={show.title} />
-            <div className="show-card-content">
+ // ... (previous imports and component setup)
+
+return (
+  <div className="show-list-container">
+    <h1>All Podcast Shows</h1>
+    {/* ... (genre filter and sort controls) ... */}
+    <div className="show-list">
+      {filteredShows.map(show => (
+        <div key={show.id} className="show-card">
+          <img src={show.image} alt={show.title} />
+          <div className="show-card-content">
+            <div className="show-info">
               <h2>{show.title}</h2>
               <p>Seasons: {show.seasons}</p>
               <p>Last updated: {new Date(show.updated).toLocaleDateString()}</p>
               <p>Genres: {show.genres.join(', ')}</p>
-              <div className="show-card-actions">
+            </div>
+            <div className="show-card-actions">
+              <div className="button-group">
                 <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
-                <Button onClick={() => handlePlayAudio(show)} className="play-button">Play</Button>
-                <Button 
-                  onClick={() => toggleFavorite(show)} 
-                  className={`favorite-button ${isFavorite(show.id) ? 'is-favorite' : ''}`}
-                  variant="ghost"
-                >
-                  {isFavorite(show.id) ? <StarFilledIcon /> : <StarIcon />}
-                </Button>
+                <button onClick={() => handlePlayAudio(show)} className="play-button">Play</button>
               </div>
+              <button 
+                onClick={() => toggleFavorite(show)}
+                className="favorite-button"
+                aria-label={isFavorite(show.id) ? "Remove from favorites" : "Add to favorites"}
+              >
+                {isFavorite(show.id) ? <StarFilledIcon /> : <StarIcon />}
+              </button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
-  );
-}
+  </div>
+);
 
+// ... (rest of the component)
 export default ShowList;
