@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Button } from '@radix-ui/themes';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -30,6 +31,26 @@ function Home({ playAudio }) {
     }
   };
 
+  const handlePlayAudio = async (show) => {
+    try {
+      const response = await fetch(`${API_URL}/id/${show.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch show details');
+      }
+      const showDetails = await response.json();
+      
+      if (showDetails.seasons && showDetails.seasons.length > 0 &&
+          showDetails.seasons[0].episodes && showDetails.seasons[0].episodes.length > 0) {
+        const episode = showDetails.seasons[0].episodes[0];
+        playAudio(show.id, episode.title, episode.file);
+      } else {
+        console.error('No episodes found for this show');
+      }
+    } catch (error) {
+      console.error('Error fetching show details:', error);
+    }
+  };
+
   const settings = {
     dots: true,
     infinite: true,
@@ -56,7 +77,7 @@ function Home({ playAudio }) {
                 <p>{show.description ? (show.description.length > 100 ? show.description.substring(0, 100) + '...' : show.description) : 'No description available'}</p>
                 <div className="carousel-buttons">
                   <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
-                  <button onClick={() => playAudio(show.id, show.title)} className="play-button">Play</button>
+                  <Button onClick={() => handlePlayAudio(show)} className="play-button">Play</Button>
                 </div>
               </div>
             </div>

@@ -68,6 +68,11 @@ function App() {
     });
   };
 
+  const resetListeningHistory = () => {
+    setCompletedEpisodes([]);
+    localStorage.removeItem('completedEpisodes');
+  };
+
   return (
     <Theme appearance={theme}>
       <Router>
@@ -121,6 +126,7 @@ function App() {
                   <CompletedEpisodes 
                     completedEpisodes={completedEpisodes}
                     playAudio={playAudio}
+                    resetListeningHistory={resetListeningHistory}
                   />
                 } 
               />
