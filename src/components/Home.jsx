@@ -43,19 +43,14 @@ function CustomNextArrow(props) {
   );
 }
 
-function Home({ playAudio, searchQuery }) {
+function Home({ playAudio }) {
   const [shows, setShows] = useState([]);
-  const [filteredShows, setFilteredShows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchShows();
   }, []);
-
-  useEffect(() => {
-    filterShows();
-  }, [shows, searchQuery]);
 
   const fetchShows = async () => {
     try {
@@ -64,25 +59,11 @@ function Home({ playAudio, searchQuery }) {
         throw new Error('Failed to fetch shows');
       }
       const data = await response.json();
-      setShows(data);
-      setFilteredShows(data.slice(0, 10)); // Initially show top 10 shows
+      setShows(data.slice(0, 10)); // Show top 10 podcasts
       setIsLoading(false);
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
-    }
-  };
-
-  const filterShows = () => {
-    if (searchQuery) {
-      const lowercaseQuery = searchQuery.toLowerCase();
-      const filtered = shows.filter(show =>
-        show.title.toLowerCase().includes(lowercaseQuery) ||
-        show.description.toLowerCase().includes(lowercaseQuery)
-      );
-      setFilteredShows(filtered.slice(0, 10)); // Show top 10 filtered results
-    } else {
-      setFilteredShows(shows.slice(0, 10)); // Show top 10 when no search query
     }
   };
 
@@ -97,7 +78,7 @@ function Home({ playAudio, searchQuery }) {
       if (showDetails.seasons && showDetails.seasons.length > 0 &&
           showDetails.seasons[0].episodes && showDetails.seasons[0].episodes.length > 0) {
         const episode = showDetails.seasons[0].episodes[0];
-        playAudio(show.id, episode.title, episode.file);
+        playAudio(show.id, 1, episode.episode);
       } else {
         console.error('No episodes found for this show');
       }
@@ -125,9 +106,10 @@ function Home({ playAudio, searchQuery }) {
   return (
     <Box className="home">
       <Heading size="8" className="welcome-heading">Welcome to PodBlast</Heading>
+      <Text size="4" align="center" mb="6">Discover and enjoy top podcasts</Text>
       <Card className="carousel-container">
         <Slider {...settings}>
-          {filteredShows.map(show => (
+          {shows.map(show => (
             <Box key={show.id} className="carousel-item">
               <img src={show.image} alt={show.title} className="carousel-image" />
               <Box className="carousel-item-content">
@@ -135,12 +117,12 @@ function Home({ playAudio, searchQuery }) {
                 <Text as="p" size="2" className="line-clamp">
                   {show.description ? (show.description.length > 100 ? show.description.substring(0, 100) + '...' : show.description) : 'No description available'}
                 </Text>
-                <Flex className="carousel-buttons" gap="3" mt="4">
+                <Flex className="carousel-buttons" gap="10" mt="4" size="1" align="left">
                   <Button onClick={() => handlePlayAudio(show)} className="carousel-button">
                     <PlayIcon /> Play Latest
                   </Button>
                   <Link to={`/show/${show.id}`} className="carousel-button">
-                    <Button variant="outline">
+                    <Button variant="solid" align="right" size="10">
                       View Details
                     </Button>
                   </Link>

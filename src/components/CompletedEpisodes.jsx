@@ -3,10 +3,10 @@ import { Button, Dialog, Flex, Box, Text, Card } from '@radix-ui/themes';
 import { PlayIcon, TrashIcon } from '@radix-ui/react-icons';
 
 function CompletedEpisodes({ completedEpisodes, playAudio, resetListeningHistory, searchQuery, playbackPositions }) {
-  const filteredEpisodes = searchQuery
+  const filteredEpisodes = searchQuery && typeof searchQuery === 'string'
     ? completedEpisodes.filter(episode => 
-        episode.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        episode.showTitle.toLowerCase().includes(searchQuery.toLowerCase())
+        (episode.title && episode.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (episode.showTitle && episode.showTitle.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : completedEpisodes;
 
@@ -47,20 +47,22 @@ function CompletedEpisodes({ completedEpisodes, playAudio, resetListeningHistory
         </Dialog.Content>
       </Dialog.Root>
       {filteredEpisodes.length === 0 ? (
-        <Text size="3" mt="4">You haven't completed any episodes yet.</Text>
+        <Text size="3" mt="4">
+          {searchQuery ? "No completed episodes match your search." : "You haven't completed any episodes yet."}
+        </Text>
       ) : (
         <Flex wrap="wrap" gap="4" mt="4">
           {filteredEpisodes.map((episode) => (
-            <Card key={episode.id} style={{ width: '300px' }}>
+            <Card key={episode.id || `${episode.showId}-${episode.seasonNumber}-${episode.episodeNumber}`} style={{ width: '300px' }}>
               <Box p="3">
                 {episode.image && (
-                  <img src={episode.image} alt={episode.showTitle} style={{ width: '100%', height: '150px', objectFit: 'cover', marginBottom: '10px' }} />
+                  <img src={episode.image} alt={episode.showTitle || 'Episode'} style={{ width: '100%', height: '150px', objectFit: 'cover', marginBottom: '10px' }} />
                 )}
-                <Text weight="bold" size="4" mb="2">{episode.title}</Text>
-                <Text size="2" mb="1">Show: {episode.showTitle}</Text>
-                <Text size="2" mb="1">Season: {episode.seasonNumber}</Text>
-                <Text size="2" mb="1">Episode: {episode.episodeNumber}</Text>
-                <Text size="2" mb="2">Completed on: {new Date(episode.completedDate).toLocaleString()}</Text>
+                <Text weight="bold" size="4" mb="2">{episode.title || 'Untitled Episode'}</Text>
+                <Text size="2" mb="1">Show: {episode.showTitle || 'Unknown Show'}</Text>
+                <Text size="2" mb="1">Season: {episode.seasonNumber || 'N/A'}</Text>
+                <Text size="2" mb="1">Episode: {episode.episodeNumber || 'N/A'}</Text>
+                <Text size="2" mb="2">Completed on: {episode.completedDate ? new Date(episode.completedDate).toLocaleString() : 'Unknown'}</Text>
                 {playbackPositions[episode.id] && (
                   <Text size="2" mb="2">
                     Last played at: {formatTime(playbackPositions[episode.id])}

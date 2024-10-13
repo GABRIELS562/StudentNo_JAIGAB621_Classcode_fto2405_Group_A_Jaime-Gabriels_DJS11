@@ -40,6 +40,10 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions 
     }, show);
   };
 
+  const handlePlayAudio = (seasonNumber, episodeNumber) => {
+    playAudio(show.id, seasonNumber, episodeNumber);
+  };
+
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -61,7 +65,7 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions 
           <Text size="6" weight="bold" mb="2">Season {season.season}</Text>
           <Text size="3" mb="4">{season.title}</Text>
           {season.episodes.map((episode) => {
-            const episodeId = `${show.id}-${episode.title}`;
+            const episodeId = `${show.id}-S${season.season}E${episode.episode}`;
             const playbackPosition = playbackPositions[episodeId];
             return (
               <Card key={episode.episode} style={{ marginBottom: '10px' }}>
@@ -76,7 +80,7 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions 
                     )}
                   </Box>
                   <Flex gap="2">
-                    <Button onClick={() => playAudio(show.id, episode.title, episode.file)}>
+                    <Button onClick={() => handlePlayAudio(season.season, episode.episode)}>
                       <PlayIcon /> Play
                     </Button>
                     <Button 

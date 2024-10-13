@@ -1,12 +1,11 @@
 import React from 'react';
 import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
-import { Button } from '@radix-ui/themes';
 
-function ThemeToggle({ theme, toggleTheme }) {
+function ThemeToggle({ theme, toggleTheme, size = 18 }) {
   return (
-    <Button variant="ghost" onClick={toggleTheme} className="theme-toggle">
-      {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-    </Button>
+    <button onClick={toggleTheme} className="theme-toggle">
+      {theme === 'light' ? <MoonIcon width={size} height={size} /> : <SunIcon width={size} height={size} />}
+    </button>
   );
 }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Flex, Box, Text, Select } from '@radix-ui/themes';
-import { StarFilledIcon, StarIcon } from '@radix-ui/react-icons';
+import { StarFilledIcon, StarIcon, PlayIcon } from '@radix-ui/react-icons';
 
 const API_URL = 'https://podcast-api.netlify.app/shows';
 
@@ -80,6 +80,26 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
     setSelectedGenre(value);
   };
 
+  const handlePlayAudio = async (show) => {
+    try {
+      const response = await fetch(`${API_URL}/${show.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch show details');
+      }
+      const showDetails = await response.json();
+      
+      if (showDetails.seasons && showDetails.seasons.length > 0 &&
+          showDetails.seasons[0].episodes && showDetails.seasons[0].episodes.length > 0) {
+        const firstEpisode = showDetails.seasons[0].episodes[0];
+        playAudio(show.id, 1, firstEpisode.episode);
+      } else {
+        console.error('No episodes found for this show');
+      }
+    } catch (error) {
+      console.error('Error fetching show details:', error);
+    }
+  };
+
   if (isLoading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
@@ -126,7 +146,9 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
                 <Button asChild size="1">
                   <Link to={`/show/${show.id}`}>View Details</Link>
                 </Button>
-                <Button onClick={() => playAudio(show.id, 1, 1)} size="1">Play</Button>
+                <Button onClick={() => handlePlayAudio(show)} size="1">
+                  <PlayIcon /> Play
+                </Button>
                 <Button 
                   onClick={() => toggleFavorite(show)}
                   variant="ghost"

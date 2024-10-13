@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Theme } from '@radix-ui/themes';
 import Home from './components/Home';
 import ShowList from './components/ShowList';
@@ -190,89 +190,132 @@ function App() {
   return (
     <Theme appearance={theme}>
       <Router>
-        <div className="app">
-          <nav className={`navbar ${theme}`}>
-            <ul>
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/shows">Shows</Link></li>
-              <li><Link to="/favorites">Favorites</Link></li>
-              <li><Link to="/completed">Completed Episodes</Link></li>
-            </ul>
-            <SearchBar onSearch={handleSearch} searchQuery={searchQuery} />
-            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-          </nav>
-
-          <main className="content">
-            <Routes>
-              <Route path="/" element={<Home playAudio={playAudio} searchQuery={searchQuery} playbackPositions={playbackPositions} />} />
-              <Route 
-                path="/shows" 
-                element={
-                  <ShowList 
-                    playAudio={playAudio} 
-                    toggleFavorite={toggleFavorite} 
-                    isFavorite={isFavorite}
-                    searchQuery={searchQuery}
-                    playbackPositions={playbackPositions}
-                    getGenreTitle={getGenreTitle}
-                    genreMap={genreMap}
-                  />
-                } 
-              />
-              <Route 
-                path="/show/:id" 
-                element={
-                  <ShowDetails 
-                    playAudio={playAudio} 
-                    toggleFavorite={toggleFavorite} 
-                    isFavorite={isFavorite}
-                    playbackPositions={playbackPositions}
-                    getGenreTitle={getGenreTitle}
-                  />
-                } 
-              />
-              <Route 
-                path="/favorites" 
-                element={
-                  <Favorites 
-                    playAudio={playAudio} 
-                    favorites={favorites}
-                    toggleFavorite={toggleFavorite}
-                    searchQuery={searchQuery}
-                    playbackPositions={playbackPositions}
-                    getGenreTitle={getGenreTitle}
-                    genreMap={genreMap}
-                  />
-                } 
-              />
-              <Route 
-                path="/completed" 
-                element={
-                  <CompletedEpisodes 
-                    completedEpisodes={completedEpisodes}
-                    playAudio={playAudio}
-                    resetListeningHistory={resetListeningHistory}
-                    searchQuery={searchQuery}
-                    playbackPositions={playbackPositions}
-                    getGenreTitle={getGenreTitle}
-                  />
-                } 
-              />
-            </Routes>
-          </main>
-
-          {currentlyPlaying && (
-            <div className="fixed-audio-player">
-              <AudioPlayer 
-                currentEpisode={currentlyPlaying}
-                onComplete={() => markEpisodeAsCompleted(currentlyPlaying)}
-                updatePlaybackPosition={updatePlaybackPosition}
-              />
-            </div>
-          )}
-        </div>
+        <AppContent
+          currentlyPlaying={currentlyPlaying}
+          playAudio={playAudio}
+          toggleFavorite={toggleFavorite}
+          isFavorite={isFavorite}
+          favorites={favorites}
+          completedEpisodes={completedEpisodes}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          searchQuery={searchQuery}
+          handleSearch={handleSearch}
+          playbackPositions={playbackPositions}
+          getGenreTitle={getGenreTitle}
+          genreMap={genreMap}
+          resetListeningHistory={resetListeningHistory}
+          markEpisodeAsCompleted={markEpisodeAsCompleted}
+          updatePlaybackPosition={updatePlaybackPosition}
+        />
       </Router>
     </Theme>
+  );
+}
+
+function AppContent({
+  currentlyPlaying,
+  playAudio,
+  toggleFavorite,
+  isFavorite,
+  favorites,
+  completedEpisodes,
+  theme,
+  toggleTheme,
+  searchQuery,
+  handleSearch,
+  playbackPositions,
+  getGenreTitle,
+  genreMap,
+  resetListeningHistory,
+  markEpisodeAsCompleted,
+  updatePlaybackPosition
+}) {
+  const location = useLocation();
+  const showSearchBar = !['/'].includes(location.pathname);
+
+  return (
+    <div className="app">
+      <nav className={`navbar ${theme}`}>
+        <ul>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/shows">Shows</Link></li>
+          <li><Link to="/favorites">Favorites</Link></li>
+          <li><Link to="/completed">Completed Episodes</Link></li>
+        </ul>
+        {showSearchBar && <SearchBar onSearch={handleSearch} searchQuery={searchQuery} />}
+        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+      </nav>
+
+      <main className="content">
+        <Routes>
+          <Route path="/" element={<Home playAudio={playAudio} />} />
+          <Route 
+            path="/shows" 
+            element={
+              <ShowList 
+                playAudio={playAudio} 
+                toggleFavorite={toggleFavorite} 
+                isFavorite={isFavorite}
+                searchQuery={searchQuery}
+                playbackPositions={playbackPositions}
+                getGenreTitle={getGenreTitle}
+                genreMap={genreMap}
+              />
+            } 
+          />
+          <Route 
+            path="/show/:id" 
+            element={
+              <ShowDetails 
+                playAudio={playAudio} 
+                toggleFavorite={toggleFavorite} 
+                isFavorite={isFavorite}
+                playbackPositions={playbackPositions}
+                getGenreTitle={getGenreTitle}
+              />
+            } 
+          />
+          <Route 
+            path="/favorites" 
+            element={
+              <Favorites 
+                playAudio={playAudio} 
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+                searchQuery={searchQuery}
+                playbackPositions={playbackPositions}
+                getGenreTitle={getGenreTitle}
+                genreMap={genreMap}
+              />
+            } 
+          />
+          <Route 
+            path="/completed" 
+            element={
+              <CompletedEpisodes 
+                completedEpisodes={completedEpisodes}
+                playAudio={playAudio}
+                resetListeningHistory={resetListeningHistory}
+                searchQuery={searchQuery}
+                playbackPositions={playbackPositions}
+                getGenreTitle={getGenreTitle}
+              />
+            } 
+          />
+        </Routes>
+      </main>
+
+      {currentlyPlaying && (
+        <div className="fixed-audio-player">
+          <AudioPlayer 
+            currentEpisode={currentlyPlaying}
+            onComplete={() => markEpisodeAsCompleted(currentlyPlaying)}
+            updatePlaybackPosition={updatePlaybackPosition}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
