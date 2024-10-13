@@ -1,17 +1,28 @@
 import React from 'react';
-import { Button, Dialog, Flex } from '@radix-ui/themes';
+import { Button, Dialog, Flex, Box, Text, Card } from '@radix-ui/themes';
+import { PlayIcon, TrashIcon } from '@radix-ui/react-icons';
 
-function CompletedEpisodes({ completedEpisodes, playAudio, resetListeningHistory, searchQuery }) {
+function CompletedEpisodes({ completedEpisodes, playAudio, resetListeningHistory, searchQuery, playbackPositions }) {
   const filteredEpisodes = searchQuery
     ? completedEpisodes.filter(episode => 
         episode.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        episode.show.toLowerCase().includes(searchQuery.toLowerCase())
+        episode.showTitle.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : completedEpisodes;
 
+  const handlePlayAgain = (episode) => {
+    playAudio(episode.showId, episode.seasonNumber, episode.episodeNumber);
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
   return (
-    <div className="completed-episodes">
-      <h1>Completed Episodes</h1>
+    <Box className="completed-episodes">
+      <Text size="8" weight="bold" mb="4">Completed Episodes</Text>
       <Dialog.Root>
         <Dialog.Trigger>
           <Button color="red">Reset Listening History</Button>
@@ -36,21 +47,36 @@ function CompletedEpisodes({ completedEpisodes, playAudio, resetListeningHistory
         </Dialog.Content>
       </Dialog.Root>
       {filteredEpisodes.length === 0 ? (
-        <p>You haven't completed any episodes yet.</p>
+        <Text size="3" mt="4">You haven't completed any episodes yet.</Text>
       ) : (
-        <ul>
-          {filteredEpisodes.map((episode, index) => (
-            <li key={index}>
-              <h3>{episode.title}</h3>
-              <p>Show: {episode.show}</p>
-              <Button onClick={() => playAudio(episode.id, episode.title, episode.file)}>
-                Play Again
-              </Button>
-            </li>
+        <Flex wrap="wrap" gap="4" mt="4">
+          {filteredEpisodes.map((episode) => (
+            <Card key={episode.id} style={{ width: '300px' }}>
+              <Box p="3">
+                {episode.image && (
+                  <img src={episode.image} alt={episode.showTitle} style={{ width: '100%', height: '150px', objectFit: 'cover', marginBottom: '10px' }} />
+                )}
+                <Text weight="bold" size="4" mb="2">{episode.title}</Text>
+                <Text size="2" mb="1">Show: {episode.showTitle}</Text>
+                <Text size="2" mb="1">Season: {episode.seasonNumber}</Text>
+                <Text size="2" mb="1">Episode: {episode.episodeNumber}</Text>
+                <Text size="2" mb="2">Completed on: {new Date(episode.completedDate).toLocaleString()}</Text>
+                {playbackPositions[episode.id] && (
+                  <Text size="2" mb="2">
+                    Last played at: {formatTime(playbackPositions[episode.id])}
+                  </Text>
+                )}
+                <Flex gap="2">
+                  <Button onClick={() => handlePlayAgain(episode)} size="1" style={{ flex: 1 }}>
+                    <PlayIcon /> Play Again
+                  </Button>
+                </Flex>
+              </Box>
+            </Card>
           ))}
-        </ul>
+        </Flex>
       )}
-    </div>
+    </Box>
   );
 }
 

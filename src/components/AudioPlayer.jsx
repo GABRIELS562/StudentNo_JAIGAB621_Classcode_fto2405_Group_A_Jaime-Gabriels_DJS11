@@ -2,10 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button, Flex, Text, Slider } from '@radix-ui/themes';
 import { PlayIcon, PauseIcon } from '@radix-ui/react-icons';
 
-
 function AudioPlayer({ currentEpisode, onComplete, updatePlaybackPosition }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(currentEpisode.currentTime || 0);
+  const [currentTime, setCurrentTime] = useState(currentEpisode?.currentTime || 0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
 
@@ -77,7 +76,7 @@ function AudioPlayer({ currentEpisode, onComplete, updatePlaybackPosition }) {
   return (
     <Flex direction="column" gap="2" className="audio-player bold-border">
       <audio ref={audioRef} />
-      <Text size="2" weight="bold">{currentEpisode.title} - {currentEpisode.show}</Text>
+      <Text size="2" weight="bold">{currentEpisode.title} - {currentEpisode.showTitle}</Text>
       <Flex align="center" gap="2">
         <Button onClick={togglePlay} variant="ghost" size="1">
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
@@ -91,6 +90,7 @@ function AudioPlayer({ currentEpisode, onComplete, updatePlaybackPosition }) {
         />
         <Text size="1">{formatTime(currentTime)} / {formatTime(duration)}</Text>
       </Flex>
+      <Text size="2">Season {currentEpisode.seasonNumber}, Episode {currentEpisode.episodeNumber}</Text>
     </Flex>
   );
 }

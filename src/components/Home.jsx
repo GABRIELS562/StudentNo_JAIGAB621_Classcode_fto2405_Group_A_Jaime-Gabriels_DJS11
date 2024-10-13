@@ -2,12 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Heading, Text, Card, Flex, Box } from '@radix-ui/themes';
 import Slider from 'react-slick';
-import { PlayIcon, ArrowRightIcon } from '@radix-ui/react-icons';
+import { PlayIcon, ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const API_URL = 'https://podcast-api.netlify.app';
 
+function CustomPrevArrow(props) {
+  const { className, style, onClick } = props;
+  return (
+    <Box
+      className={className}
+      style={{
+        ...style,
+        display: "block",
+        left: "10px",
+        zIndex: 1
+      }}
+      onClick={onClick}
+    >
+      <ChevronLeftIcon color="white" width="24" height="24" />
+    </Box>
+  );
+}
+
+function CustomNextArrow(props) {
+  const { className, style, onClick } = props;
+  return (
+    <Box
+      className={className}
+      style={{
+        ...style,
+        display: "block",
+        right: "10px"
+      }}
+      onClick={onClick}
+    >
+      <ChevronRightIcon color="white" width="24" height="24" />
+    </Box>
+  );
+}
 
 function Home({ playAudio, searchQuery }) {
   const [shows, setShows] = useState([]);
@@ -81,7 +115,8 @@ function Home({ playAudio, searchQuery }) {
     autoplay: true,
     autoplaySpeed: 5000,
     pauseOnHover: true,
-    arrows: false,
+    prevArrow: <CustomPrevArrow />,
+    nextArrow: <CustomNextArrow />
   };
 
   if (isLoading) return <Box className="loading">Loading...</Box>;

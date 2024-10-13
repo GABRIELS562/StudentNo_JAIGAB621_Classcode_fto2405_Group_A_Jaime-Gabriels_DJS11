@@ -396,3 +396,32 @@ body {
     margin-bottom: 10px;
   }
 }
+.carousel-container .slick-prev,
+.carousel-container .slick-next {
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-container .slick-prev {
+  left: 10px;
+}
+
+.carousel-container .slick-next {
+  right: 10px;
+}
+
+.carousel-container .slick-prev:hover,
+.carousel-container .slick-next:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-container .slick-prev:before,
+.carousel-container .slick-next:before {
+  display: none;
+}

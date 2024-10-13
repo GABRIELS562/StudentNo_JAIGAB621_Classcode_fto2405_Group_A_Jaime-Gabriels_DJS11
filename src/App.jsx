@@ -12,6 +12,20 @@ import SearchBar from './components/SearchBar';
 import '@radix-ui/themes/styles.css';
 import './App.css';
 
+const API_BASE_URL = 'https://podcast-api.netlify.app';
+
+const genreMap = {
+  1: "Personal Growth",
+  2: "Investigative Journalism",
+  3: "History",
+  4: "Comedy",
+  5: "Entertainment",
+  6: "Business",
+  7: "Fiction",
+  8: "News",
+  9: "Kids and Family"
+};
+
 function App() {
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const [favorites, setFavorites] = useState([]);
@@ -30,17 +44,45 @@ function App() {
     setCompletedEpisodes(storedCompletedEpisodes);
     setTheme(storedTheme);
     setPlaybackPositions(storedPlaybackPositions);
+
+    console.log("Loaded completed episodes:", storedCompletedEpisodes);
   }, []);
 
-  const playAudio = (showId, episodeTitle, episodeFile) => {
-    const episodeId = `${showId}-${episodeTitle}`;
-    setCurrentlyPlaying({
-      id: episodeId,
-      title: episodeTitle,
-      show: showId,
-      file: episodeFile,
-      currentTime: playbackPositions[episodeId] || 0
-    });
+  const getGenreTitle = (genreId) => genreMap[genreId] || "Unknown Genre";
+
+  const playAudio = async (showId, seasonNumber, episodeNumber) => {
+    try {
+      console.log(`Playing audio: Show ${showId}, Season ${seasonNumber}, Episode ${episodeNumber}`);
+      const response = await fetch(`${API_BASE_URL}/id/${showId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch show details');
+      }
+      const showData = await response.json();
+      const season = showData.seasons.find(s => s.season === parseInt(seasonNumber));
+      if (!season) {
+        throw new Error('Season not found');
+      }
+      const episode = season.episodes.find(e => e.episode === parseInt(episodeNumber));
+      if (!episode) {
+        throw new Error('Episode not found');
+      }
+      
+      const episodeId = `${showId}-S${seasonNumber}E${episodeNumber}`;
+      setCurrentlyPlaying({
+        id: episodeId,
+        showId,
+        showTitle: showData.title,
+        seasonNumber,
+        episodeNumber,
+        title: episode.title,
+        file: episode.file,
+        image: showData.image,
+        currentTime: playbackPositions[episodeId] || 0
+      });
+      console.log("Now playing:", episodeId);
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
   };
 
   const updatePlaybackPosition = (episodeId, currentTime) => {
@@ -70,6 +112,7 @@ function App() {
             episode: item.episode,
             file: item.file,
             image: show ? show.image : item.image,
+            genres: show ? show.genres.map(getGenreTitle) : item.genres,
             dateAdded: new Date().toISOString(),
             updated: show ? show.updated : item.updated
           }];
@@ -85,6 +128,7 @@ function App() {
             showId: item.id,
             showTitle: item.title,
             image: item.image,
+            genres: item.genres.map(getGenreTitle),
             dateAdded: new Date().toISOString(),
             updated: item.updated
           }];
@@ -110,15 +154,33 @@ function App() {
 
   const markEpisodeAsCompleted = (episode) => {
     setCompletedEpisodes(prevCompleted => {
-      const newCompleted = [...prevCompleted, episode];
+      const episodeId = `${episode.showId}-S${episode.seasonNumber}E${episode.episodeNumber}`;
+      const existingIndex = prevCompleted.findIndex(ep => ep.id === episodeId);
+      let newCompleted;
+      if (existingIndex !== -1) {
+        // Update existing episode
+        newCompleted = prevCompleted.map((ep, index) => 
+          index === existingIndex ? { ...ep, completedDate: new Date().toISOString() } : ep
+        );
+      } else {
+        // Add new episode
+        newCompleted = [...prevCompleted, {
+          ...episode,
+          id: episodeId,
+          completedDate: new Date().toISOString()
+        }];
+      }
       localStorage.setItem('completedEpisodes', JSON.stringify(newCompleted));
+      console.log("Updated completed episodes:", newCompleted);
       return newCompleted;
     });
   };
 
   const resetListeningHistory = () => {
     setCompletedEpisodes([]);
+    setPlaybackPositions({});
     localStorage.removeItem('completedEpisodes');
+    localStorage.removeItem('playbackPositions');
   };
 
   const handleSearch = (query) => {
@@ -152,6 +214,8 @@ function App() {
                     isFavorite={isFavorite}
                     searchQuery={searchQuery}
                     playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
+                    genreMap={genreMap}
                   />
                 } 
               />
@@ -163,6 +227,7 @@ function App() {
                     toggleFavorite={toggleFavorite} 
                     isFavorite={isFavorite}
                     playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
                   />
                 } 
               />
@@ -174,8 +239,9 @@ function App() {
                     favorites={favorites}
                     toggleFavorite={toggleFavorite}
                     searchQuery={searchQuery}
-                    onSearch={handleSearch}
                     playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
+                    genreMap={genreMap}
                   />
                 } 
               />
@@ -187,6 +253,8 @@ function App() {
                     playAudio={playAudio}
                     resetListeningHistory={resetListeningHistory}
                     searchQuery={searchQuery}
+                    playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
                   />
                 } 
               />

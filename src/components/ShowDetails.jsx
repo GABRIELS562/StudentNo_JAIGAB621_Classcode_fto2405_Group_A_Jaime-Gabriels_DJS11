@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button, Text, Flex, Box } from '@radix-ui/themes';
+import { Button, Text, Flex, Box, Card } from '@radix-ui/themes';
 import { StarFilledIcon, StarIcon, PlayIcon } from '@radix-ui/react-icons';
 
 const API_URL = 'https://podcast-api.netlify.app/id/';
@@ -51,54 +51,52 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions 
   if (!show) return <div className="not-found">Show not found</div>;
 
   return (
-    <div className="show-details">
-      <h1>{show.title}</h1>
-      <img src={show.image} alt={show.title} className="show-image" />
-      <p>{show.description}</p>
+    <Box className="show-details">
+      <Text size="8" weight="bold" mb="4">{show.title}</Text>
+      <img src={show.image} alt={show.title} className="show-image" style={{ maxWidth: '300px', marginBottom: '20px' }} />
+      <Text size="3" mb="4">{show.description}</Text>
       
-      <h2>Seasons</h2>
       {show.seasons.map((season) => (
-        <div key={season.season} className="season">
-          <h3>Season {season.season}</h3>
-          <ul className="episode-list">
-            {season.episodes.map((episode) => {
-              const episodeId = `${show.id}-${episode.title}`;
-              const playbackPosition = playbackPositions[episodeId];
-              return (
-                <li key={episode.episode} className="episode-item">
-                  <Flex justify="between" align="center">
-                    <Box>
-                      <Text as="h4" size="3" weight="bold">Episode {episode.episode}: {episode.title}</Text>
-                      <Text size="2">{episode.description}</Text>
-                      {playbackPosition && (
-                        <Text size="2" color="gray">
-                          Last played: {formatTime(playbackPosition)}
-                        </Text>
-                      )}
-                    </Box>
-                    <Flex gap="2">
-                      <Button onClick={() => playAudio(show.id, episode.title, episode.file)}>
-                        <PlayIcon /> Play
-                      </Button>
-                      <Button 
-                        onClick={() => handleToggleFavorite(episode, season.season)}
-                        variant="ghost"
-                      >
-                        {isFavorite(show.id, episode.title) ? <StarFilledIcon /> : <StarIcon />}
-                      </Button>
-                    </Flex>
+        <Card key={season.season} style={{ marginBottom: '20px' }}>
+          <Text size="6" weight="bold" mb="2">Season {season.season}</Text>
+          <Text size="3" mb="4">{season.title}</Text>
+          {season.episodes.map((episode) => {
+            const episodeId = `${show.id}-${episode.title}`;
+            const playbackPosition = playbackPositions[episodeId];
+            return (
+              <Card key={episode.episode} style={{ marginBottom: '10px' }}>
+                <Flex justify="between" align="center">
+                  <Box>
+                    <Text size="4" weight="bold">Episode {episode.episode}: {episode.title}</Text>
+                    <Text size="2">{episode.description}</Text>
+                    {playbackPosition && (
+                      <Text size="2" color="gray">
+                        Last played: {formatTime(playbackPosition)}
+                      </Text>
+                    )}
+                  </Box>
+                  <Flex gap="2">
+                    <Button onClick={() => playAudio(show.id, episode.title, episode.file)}>
+                      <PlayIcon /> Play
+                    </Button>
+                    <Button 
+                      onClick={() => handleToggleFavorite(episode, season.season)}
+                      variant="ghost"
+                    >
+                      {isFavorite(show.id, episode.title) ? <StarFilledIcon /> : <StarIcon />}
+                    </Button>
                   </Flex>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+                </Flex>
+              </Card>
+            );
+          })}
+        </Card>
       ))}
       
       <Link to="/shows" className="back-link">
         <Button variant="outline">Back to Shows</Button>
       </Link>
-    </div>
+    </Box>
   );
 }
 
