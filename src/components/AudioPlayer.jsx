@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button, Flex, Text, Slider } from '@radix-ui/themes';
 import { PlayIcon, PauseIcon } from '@radix-ui/react-icons';
-import './AudioPlayer.css'; // Make sure to create this CSS file
+
 
 function AudioPlayer({ currentEpisode, onComplete, updatePlaybackPosition }) {
   const [isPlaying, setIsPlaying] = useState(false);

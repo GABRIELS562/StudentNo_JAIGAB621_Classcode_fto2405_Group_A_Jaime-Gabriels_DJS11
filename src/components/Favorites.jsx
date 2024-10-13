@@ -1,126 +1,71 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Button, Box, Text, Flex } from '@radix-ui/themes';
-import * as Accordion from '@radix-ui/react-accordion';
 
-function Favorites({ playAudio, favorites, toggleFavorite, searchQuery }) {
+function Favorites({ favorites, toggleFavorite, playAudio, searchQuery }) {
   const [sortOrder, setSortOrder] = useState('dateAdded');
-  const [filteredFavorites, setFilteredFavorites] = useState([]);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    console.log('Favorites received:', favorites.map(f => ({
-      id: f.id,
-      title: f.title,
-      showTitle: f.showTitle,
-      dateAdded: f.dateAdded,
-      updated: f.updated
-    })));
-    filterFavorites(favorites);
-  }, [favorites, searchQuery]);
+  const sortFunction = (a, b) => {
+    switch (sortOrder) {
+      case 'dateAdded':
+        return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
+      case 'mostRecentlyUpdated':
+        return new Date(b.updated || 0) - new Date(a.updated || 0);
+      case 'leastRecentlyUpdated':
+        return new Date(a.updated || 0) - new Date(b.updated || 0);
+      case 'titleAZ':
+        return (a.showTitle || '').localeCompare(b.showTitle || '');
+      case 'titleZA':
+        return (b.showTitle || '').localeCompare(a.showTitle || '');
+      default:
+        return 0;
+    }
+  };
 
-  const filterFavorites = (favs) => {
-    let filtered = favs;
+  const filteredAndSortedFavorites = useMemo(() => {
+    let filtered = favorites;
     if (searchQuery) {
       const lowercaseQuery = searchQuery.toLowerCase();
-      filtered = favs.filter(fav =>
-        fav.showTitle.toLowerCase().includes(lowercaseQuery) ||
-        (fav.title && fav.title.toLowerCase().includes(lowercaseQuery))
+      filtered = favorites.filter(fav => 
+        fav.showTitle.toLowerCase().includes(lowercaseQuery)
       );
     }
-    console.log('Filtered favorites:', filtered.map(f => ({
-      id: f.id,
-      title: f.title,
-      showTitle: f.showTitle,
-      dateAdded: f.dateAdded,
-      updated: f.updated
-    })));
-    setFilteredFavorites(filtered);
-  };
-
-  const sortedFavorites = useMemo(() => {
-    console.log('Sorting favorites. Current sort order:', sortOrder);
-    console.log('Favorites before sorting:', filteredFavorites.map(f => ({
-      id: f.id,
-      title: f.title,
-      showTitle: f.showTitle,
-      dateAdded: f.dateAdded,
-      updated: f.updated
-    })));
-    
-    let sorted = [...filteredFavorites];
-    
-    sorted.sort((a, b) => {
-      switch (sortOrder) {
-        case 'dateAdded':
-          return new Date(b.dateAdded) - new Date(a.dateAdded);
-        case 'mostRecentlyUpdated':
-          return new Date(b.updated) - new Date(a.updated);
-        case 'leastRecentlyUpdated':
-          return new Date(a.updated) - new Date(b.updated);
-        case 'titleAZ':
-          return a.title.localeCompare(b.title);
-        case 'titleZA':
-          return b.title.localeCompare(a.title);
-        default:
-          return 0;
-      }
-    });
-
-    console.log('Favorites after sorting:', sorted.map(f => ({
-      id: f.id,
-      title: f.title,
-      showTitle: f.showTitle,
-      dateAdded: f.dateAdded,
-      updated: f.updated
-    })));
-    return sorted;
-  }, [filteredFavorites, sortOrder]);
-
-  const groupedFavorites = useMemo(() => {
-    const grouped = sortedFavorites.reduce((acc, fav) => {
-      if (!acc[fav.showId]) {
-        acc[fav.showId] = { 
-          showTitle: fav.showTitle, 
-          image: fav.image, 
-          episodes: []
-        };
-      }
-      acc[fav.showId].episodes.push(fav);
-      return acc;
-    }, {});
-
-    console.log('Grouped favorites:', Object.entries(grouped).map(([showId, show]) => ({
-      showId,
-      showTitle: show.showTitle,
-      episodeCount: show.episodes.length,
-      episodes: show.episodes.map(e => ({
-        id: e.id,
-        title: e.title,
-        dateAdded: e.dateAdded,
-        updated: e.updated
-      }))
-    })));
-    return grouped;
-  }, [sortedFavorites]);
-
-  const handlePlayAudio = (favorite) => {
-    console.log('Playing audio:', favorite);
-    playAudio(favorite.showId, favorite.title, favorite.file);
-  };
+    return [...filtered].sort(sortFunction);
+  }, [favorites, searchQuery, sortOrder]);
 
   const handleRemoveFavorite = (favorite) => {
-    console.log('Removing favorite:', favorite);
     toggleFavorite(favorite);
   };
 
+  const handlePlayAudio = useCallback((favorite) => {
+    console.log("Attempting to play audio for:", favorite);
+    setError(null);
+    setCurrentlyPlaying(favorite);
+
+    // Use the same placeholder audio as in the ShowList component
+    const placeholderAudio = 'https://file-examples.com/storage/fe8c7eef0c6364f6c9504cc/2017/11/file_example_MP3_700KB.mp3';
+
+    try {
+      // Use showId if available, otherwise fall back to id
+      const id = favorite.showId || favorite.id;
+      playAudio(id, favorite.showTitle, placeholderAudio);
+      console.log("Audio play function called with:", id, favorite.showTitle, placeholderAudio);
+    } catch (err) {
+      console.error("Error in handlePlayAudio:", err);
+      setError(`An error occurred: ${err.message}`);
+    }
+  }, [playAudio]);
+
   const handleSortChange = (newSortOrder) => {
-    console.log('Changing sort order to:', newSortOrder);
     setSortOrder(newSortOrder);
   };
 
   return (
-    <div className="favorites">
-      <h1>Your Favorites</h1>
-      <Flex gap="2" wrap="wrap" className="sort-controls">
+    <Box className="favorites">
+      <Text size="8" mb="4">Your Favorites</Text>
+      {error && <Text color="red" mb="4">{error}</Text>}
+      <Flex gap="2" wrap="wrap" mb="4">
         <Button onClick={() => handleSortChange('dateAdded')} variant={sortOrder === 'dateAdded' ? 'solid' : 'outline'}>
           Date Added
         </Button>
@@ -137,41 +82,40 @@ function Favorites({ playAudio, favorites, toggleFavorite, searchQuery }) {
           Title Z-A
         </Button>
       </Flex>
-      {sortedFavorites.length === 0 ? (
+      {filteredAndSortedFavorites.length === 0 ? (
         <Text size="3">No favorites found. {searchQuery ? 'Try a different search term.' : ''}</Text>
       ) : (
-        <Accordion.Root type="multiple" className="favorites-list">
-          {Object.entries(groupedFavorites).map(([showId, show]) => (
-            <Accordion.Item key={showId} value={showId}>
-              <Accordion.Trigger>
-                <Flex align="center" gap="2">
-                  <img src={show.image} alt={show.showTitle} style={{width: '50px', height: '50px', borderRadius: '4px'}} />
-                  <Text size="5" weight="bold">{show.showTitle}</Text>
-                </Flex>
-              </Accordion.Trigger>
-              <Accordion.Content>
-                {show.episodes.map(episode => (
-                  <Box key={episode.id} className="favorite-item" mb="3">
-                    <Text as="h4" size="3" weight="bold">{episode.title}</Text>
-                    <Text size="2">Season: {episode.season || 'Unknown'}</Text>
-                    <Text size="2">Added on: {episode.dateAdded ? new Date(episode.dateAdded).toLocaleDateString() : 'Unknown'}</Text>
-                    <Text size="2">Last updated: {episode.updated ? new Date(episode.updated).toLocaleDateString() : 'Unknown'}</Text>
-                    <Flex gap="2" mt="2">
-                      <Button onClick={() => handlePlayAudio(episode)} className="play-button">
-                        Play
-                      </Button>
-                      <Button onClick={() => handleRemoveFavorite(episode)} className="remove-favorite-button">
-                        Remove from Favorites
-                      </Button>
-                    </Flex>
-                  </Box>
-                ))}
-              </Accordion.Content>
-            </Accordion.Item>
+        <Flex wrap="wrap" gap="4">
+          {filteredAndSortedFavorites.map((favorite) => (
+            <Box key={favorite.showId || favorite.id} style={{ width: '250px', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '10px' }}>
+              {favorite.image && (
+                <img 
+                  src={favorite.image} 
+                  alt={favorite.showTitle} 
+                  style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px' }} 
+                />
+              )}
+              <Text weight="bold" size="3" mb="1">{favorite.showTitle}</Text>
+              <Text size="2" mb="1">Added on: {favorite.dateAdded ? new Date(favorite.dateAdded).toLocaleDateString() : 'Unknown'}</Text>
+              <Text size="2" mb="2">Last updated: {favorite.updated ? new Date(favorite.updated).toLocaleDateString() : 'Unknown'}</Text>
+              <Flex gap="2">
+                <Button onClick={() => handlePlayAudio(favorite)} size="1" style={{ flex: 1 }}>
+                  Play
+                </Button>
+                <Button onClick={() => handleRemoveFavorite(favorite)} size="1" variant="outline" style={{ flex: 1 }}>
+                  Remove
+                </Button>
+              </Flex>
+            </Box>
           ))}
-        </Accordion.Root>
+        </Flex>
       )}
-    </div>
+      {currentlyPlaying && (
+        <Box mt="4">
+          <Text>Currently Playing: {currentlyPlaying.showTitle}</Text>
+        </Box>
+      )}
+    </Box>
   );
 }
 

@@ -114,42 +114,59 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery }) {
   if (isLoading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
- // ... (previous imports and component setup)
-
-return (
-  <div className="show-list-container">
-    <h1>All Podcast Shows</h1>
-    {/* ... (genre filter and sort controls) ... */}
-    <div className="show-list">
-      {filteredShows.map(show => (
-        <div key={show.id} className="show-card">
-          <img src={show.image} alt={show.title} />
-          <div className="show-card-content">
-            <div className="show-info">
+  return (
+    <div className="show-list-container">
+      <h1>All Podcast Shows</h1>
+      <div className="filter-sort-controls">
+        <div className="genre-filter">
+          <label htmlFor="genre-select">Genre: </label>
+          <select id="genre-select" value={selectedGenre} onChange={handleGenreChange}>
+            {genres.map(genre => (
+              <option key={genre} value={genre}>{genre === 'All' ? 'All Genres' : genre}</option>
+            ))}
+          </select>
+        </div>
+        <div className="sort-controls">
+          <Button onClick={() => handleSortChange('recentlyUpdated')} variant={sortOrder === 'recentlyUpdated' ? 'solid' : 'outline'}>
+            Most Recently Updated
+          </Button>
+          <Button onClick={() => handleSortChange('leastRecentlyUpdated')} variant={sortOrder === 'leastRecentlyUpdated' ? 'solid' : 'outline'}>
+            Least Recently Updated
+          </Button>
+          <Button onClick={() => handleSortChange('titleAZ')} variant={sortOrder === 'titleAZ' ? 'solid' : 'outline'}>
+            Title A-Z
+          </Button>
+          <Button onClick={() => handleSortChange('titleZA')} variant={sortOrder === 'titleZA' ? 'solid' : 'outline'}>
+            Title Z-A
+          </Button>
+        </div>
+      </div>
+      <div className="show-list">
+        {filteredShows.map(show => (
+          <div key={show.id} className="show-card">
+            <img src={show.image} alt={show.title} />
+            <div className="show-card-content">
               <h2>{show.title}</h2>
               <p>Seasons: {show.seasons}</p>
               <p>Last updated: {new Date(show.updated).toLocaleDateString()}</p>
               <p>Genres: {show.genres.join(', ')}</p>
-            </div>
-            <div className="show-card-actions">
-              <div className="button-group">
+              <div className="show-card-actions">
                 <Link to={`/show/${show.id}`} className="view-details-btn">View Details</Link>
-                <button onClick={() => handlePlayAudio(show)} className="play-button">Play</button>
+                <Button onClick={() => handlePlayAudio(show)} className="play-button">Play</Button>
+                <Button 
+                  onClick={() => toggleFavorite(show)}
+                  className={`favorite-button ${isFavorite(show.id) ? 'is-favorite' : ''}`}
+                  variant="ghost"
+                >
+                  {isFavorite(show.id) ? <StarFilledIcon /> : <StarIcon />}
+                </Button>
               </div>
-              <button 
-                onClick={() => toggleFavorite(show)}
-                className="favorite-button"
-                aria-label={isFavorite(show.id) ? "Remove from favorites" : "Add to favorites"}
-              >
-                {isFavorite(show.id) ? <StarFilledIcon /> : <StarIcon />}
-              </button>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
-// ... (rest of the component)
 export default ShowList;
