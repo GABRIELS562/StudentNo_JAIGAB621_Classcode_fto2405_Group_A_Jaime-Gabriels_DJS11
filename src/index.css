@@ -360,13 +360,13 @@ body {
 }
 
 .navbar.light {
-  background-color: var(--gray-3);
+  background-color: var(--gray--1);
   color: var(--gray-12);
 }
 
 .navbar.dark {
-  background-color: var(--gray-12);
-  color: var(--gray-1);
+  background-color: var(--gray-3);
+  color: var(--gray-10);
 }
 
 .navbar ul {
@@ -474,11 +474,12 @@ body {
 
 .navbar ul li {
   margin-right: 20px;
+  color:grey;
 }
 
 .navbar ul li a {
   text-decoration: none;
-  color: var(--gray-12);
+  color: var(--gray-10);
 }
 
 .nav-audio-player {

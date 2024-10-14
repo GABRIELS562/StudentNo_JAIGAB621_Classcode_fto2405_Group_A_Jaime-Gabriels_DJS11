@@ -12,11 +12,13 @@ function SearchBar({ onSearch }) {
     <div className="search-bar">
       <TextField.Root>
         <TextField.Slot>
-          <MagnifyingGlassIcon height="16" width="16" />
+          <MagnifyingGlassIcon height="24" width="14" />
         </TextField.Slot>
         <TextField.Input
           placeholder="Search shows..."
           onChange={handleInputChange}
+     
+         
         />
       </TextField.Root>
     </div>

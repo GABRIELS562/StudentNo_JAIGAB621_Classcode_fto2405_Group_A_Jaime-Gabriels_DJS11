@@ -49,71 +49,142 @@ body {
 }
 
 /* Navbar Styles */
+/* Base navbar styles */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: var(--navbar-height);
-  background-color: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: var(--navbar-height, 60px);
   z-index: 1000;
-  color: white;
+  transition: background-color 0.3s, color 0.3s;
 }
 
+/* Light theme styles */
+.navbar.light {
+  background-color: #ffffff;
+  color: #333333;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Dark theme styles */
+.navbar.dark {
+  background-color: #333333;
+  color: #ffffff;
+  border-bottom: 1px solid #444444;
+}
+
+/* Navbar content layout */
 .navbar-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: var(--max-width);
+  max-width: var(--max-width, 1200px);
   margin: 0 auto;
   padding: 0 15px;
   height: 100%;
 }
 
-.navbar-left, .navbar-center, .navbar-right {
+/* Navbar center section (navigation links) */
+.navbar-center {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-center a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: opacity 0.3s;
+}
+
+.navbar-center a:hover {
+  opacity: 0.7;
+}
+
+/* Navbar right section (search and theme toggle) */
+.navbar-right {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
-.navbar-center {
-  flex-grow: 1;
-  justify-content: center;
+/* Search bar styles */
+.navbar .search-bar {
+  position: relative;
 }
 
-.navbar-center ul {
+.navbar.light .search-bar input {
+  background-color: #f0f0f0;
+  color: #333333;
+  border: 1px solid #e0e0e0;
+}
+
+.navbar.dark .search-bar input {
+  background-color: #444444;
+  color: #ffffff;
+  border: 1px solid #555555;
+}
+
+.navbar .search-bar input {
+  padding: 8px 30px 8px 10px;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.navbar .search-bar input:focus {
+  border-color: #007bff;
+}
+
+/* Theme toggle button */
+.navbar .theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
   display: flex;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
 }
 
-.navbar-center li {
-  margin: 0 10px;
+/* Responsive styles */
+@media (max-width: 768px) {
+  .navbar-content {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 15px;
+  }
+
+  .navbar-center {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .navbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .navbar .search-bar {
+    flex-grow: 1;
+    margin-right: 10px;
+  }
 }
 
-.navbar-center li a {
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-  font-size: 14px;
-  transition: opacity 0.3s ease;
+/* Ensure content below navbar is not hidden */
+.app {
+  padding-top: var(--navbar-height, 60px);
 }
-
-.navbar-center li a:hover {
-  opacity: 0.8;
-}
-
-.logo {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: white;
-  text-decoration: none;
-}
-
 .search-bar {
-  margin-right: 10px;
+  margin-left: 20px; /* Adds space between "Listening History" and the search bar */
+  margin-right: 10px; /* Keeps some space between search bar and theme toggle */
 }
+
+
+
 .theme-toggle {
   background: none;
   border: none;
@@ -369,27 +440,9 @@ body {
   .app {
     padding: 10px;
   }
+ 
 
-  .navbar-content {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 10px;
-  }
-
-  .navbar-center {
-    order: -1;
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .navbar-center ul {
-    justify-content: center;
-  }
-
-  .search-bar {
-    flex-grow: 1;
-    margin-right: 10px;
-  }
+ 
 
   .content {
     margin-top: calc(var(--navbar-height) * 2 + 20px);
