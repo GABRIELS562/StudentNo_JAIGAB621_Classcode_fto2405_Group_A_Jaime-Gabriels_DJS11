@@ -44,8 +44,6 @@ function App() {
     setCompletedEpisodes(storedCompletedEpisodes);
     setTheme(storedTheme);
     setPlaybackPositions(storedPlaybackPositions);
-
-    console.log("Loaded completed episodes:", storedCompletedEpisodes);
   }, []);
 
   const getGenreTitle = (genreId) => genreMap[genreId] || "Unknown Genre";
@@ -237,14 +235,23 @@ function AppContent({
   return (
     <div className="app">
       <nav className={`navbar ${theme}`}>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/shows">Shows</Link></li>
-          <li><Link to="/favorites">Favorites</Link></li>
-          <li><Link to="/completed">Completed Episodes</Link></li>
-        </ul>
-        {showSearchBar && <SearchBar onSearch={handleSearch} searchQuery={searchQuery} />}
-        <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+        <div className="navbar-content">
+          <div className="navbar-left">
+            <Link to="/" className="logo">PodBlast</Link>
+          </div>
+          <div className="navbar-center">
+            <ul>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/shows">Shows</Link></li>
+              <li><Link to="/favorites">Favorites</Link></li>
+              <li><Link to="/completed">Completed Episodes</Link></li>
+            </ul>
+          </div>
+          <div className="navbar-right">
+            {showSearchBar && <SearchBar onSearch={handleSearch} searchQuery={searchQuery} />}
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+          </div>
+        </div>
       </nav>
 
       <main className="content">

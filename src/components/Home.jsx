@@ -105,42 +105,76 @@ function Home({ playAudio }) {
 
   return (
     <Box className="home">
-      <Heading size="8" className="welcome-heading">Welcome to PodBlast</Heading>
-      <Text size="4" align="center" mb="6">Discover and enjoy top podcasts</Text>
-      <Card className="carousel-container">
-        <Slider {...settings}>
-          {shows.map(show => (
-            <Box key={show.id} className="carousel-item">
-              <img src={show.image} alt={show.title} className="carousel-image" />
-              <Box className="carousel-item-content">
-                <Heading size="6">{show.title}</Heading>
-                <Text as="p" size="2" className="line-clamp">
-                  {show.description ? (show.description.length > 100 ? show.description.substring(0, 100) + '...' : show.description) : 'No description available'}
-                </Text>
-                <Flex className="carousel-buttons" gap="10" mt="4" size="1" align="left">
-                  <Button onClick={() => handlePlayAudio(show)} className="carousel-button">
-                    <PlayIcon /> Play Latest
-                  </Button>
-                  <Link to={`/show/${show.id}`} className="carousel-button">
-                    <Button variant="solid" align="right" size="10">
-                      View Details
-                    </Button>
-                  </Link>
-                </Flex>
-              </Box>
-            </Box>
-          ))}
-        </Slider>
-      </Card>
-      <Flex justify="center" mt="6">
-        <Link to="/shows" className="view-all-link">
-          <Button size="3">
-            View All Shows <ArrowRightIcon />
-          </Button>
-        </Link>
-      </Flex>
-    </Box>
-  );
-}
+  <Flex direction="column" align="center" justify="center" style={{ textAlign: 'center', marginBottom: '24px' }}>
+    <Heading size="8" className="welcome-heading">Welcome to PodBlast</Heading>
+    <Text size="4" align="center" mb="6">Discover and enjoy top podcasts</Text>
+  </Flex>
+
+  {/* Adjusted carousel size */}
+  <Card className="carousel-container" style={{ height: '500px', width: '90%', margin: '0 auto', paddingBottom: '40px' }}>
+    <Slider {...settings}>
+      {shows.map(show => (
+        <Box key={show.id} className="carousel-item" style={{ height: '100%', width: '90%', margin: '0 auto' }}>
+        {/* Updated image styling */}
+        <img 
+          src={show.image} 
+          alt={show.title} 
+          className="carousel-image" 
+          style={{ 
+            width: '100%',         /* Ensure the image fills the width */
+            height: '100%',        /* Ensure the image fills the height */
+            objectFit: 'cover',    /* Make sure the image covers the entire area */
+            objectPosition: 'center', /* Center the image in case of cropping */
+          }} 
+        />
+        <Flex direction="column" className="carousel-item-content" style={{ height: '40%', padding: '16px' }}>
+          <Heading size="8" mb="2">{show.title}</Heading>
+          <Text as="p" size="3" className="line-clamp" style={{ flexGrow: 1, color: 'white' }}>
+            {show.description ? (show.description.length > 100 ? show.description.substring(0, 100) + '...' : show.description) : 'No description available'}
+          </Text>
+
+            {/* Buttons with adjusted widths */}
+            <Flex className="carousel-buttons" justify="between" mt="4">
+              {/* Play Latest Button with 70% width */}
+              <Button 
+                onClick={() => handlePlayAudio(show)} 
+                className="carousel-button" 
+                size="3"
+                variant="solid"
+                style={{ width: '70%', marginRight: '8px', backgroundColor: '#64748b', color: 'white' }}
+              >
+                <PlayIcon /> Play Latest
+              </Button>
+
+              {/* View Details Button with 30% width */}
+              <Button 
+                asChild 
+                className="carousel-button" 
+                size="3"
+                variant="solid"
+                style={{ width: '30%', backgroundColor: '#64748b', color: 'white' }}
+              >
+                <Link to={`/show/${show.id}`}>View Details</Link>
+              </Button>
+            </Flex>
+          </Flex>
+        </Box>
+      ))}
+    </Slider>
+  </Card>
+
+  <Flex justify="center" mt="6">
+    <Button asChild size="3"
+       style={{ width: '30%', backgroundColor: '#64748b', color: 'white' }}>
+      <Link to="/shows" className="view-all-link">
+        View All Shows <ArrowRightIcon />
+      </Link>
+    </Button>
+  </Flex>
+</Box>
+    );
+  }
+  
+
 
 export default Home;
