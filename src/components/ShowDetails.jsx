@@ -79,17 +79,18 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions 
                       </Text>
                     )}
                   </Box>
-                  <Flex gap="2">
-                    <Button onClick={() => handlePlayAudio(season.season, episode.episode)}>
-                      <PlayIcon /> Play
-                    </Button>
-                    <Button 
-                      onClick={() => handleToggleFavorite(episode, season.season)}
-                      variant="ghost"
-                    >
-                      {isFavorite(show.id, episode.title) ? <StarFilledIcon /> : <StarIcon />}
-                    </Button>
-                  </Flex>
+                  <Flex className="button-container" gap="2">
+  <Button onClick={() => handlePlayAudio(season.season, episode.episode)} className="full-width-button play-button custom-button">
+    <PlayIcon /> Play
+  </Button>
+  <Button 
+    onClick={() => handleToggleFavorite(episode, season.season)}
+    variant="ghost"
+    className="full-width-button favorite-button custom-button"
+  >
+    {isFavorite(show.id, episode.title) ? <StarFilledIcon /> : <StarIcon />}
+  </Button>
+</Flex>
                 </Flex>
               </Card>
             );

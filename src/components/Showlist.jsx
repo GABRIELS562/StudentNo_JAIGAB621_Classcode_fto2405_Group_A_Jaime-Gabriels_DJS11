@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Button, Card, Flex, Box, Text, Select } from '@radix-ui/themes';
 import { StarFilledIcon, StarIcon, PlayIcon } from '@radix-ui/react-icons';
 
-const API_URL = 'https://podcast-api.netlify.app/shows';
+const API_BASE_URL = 'https://podcast-api.netlify.app';
+const SHOWS_URL = `${API_BASE_URL}/shows`;
 
 function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playbackPositions, getGenreTitle, genreMap }) {
   const [shows, setShows] = useState([]);
@@ -24,7 +25,7 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
   const fetchShows = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(API_URL);
+      const response = await fetch(SHOWS_URL);
       if (!response.ok) {
         throw new Error('Failed to fetch shows');
       }
@@ -82,7 +83,7 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
 
   const handlePlayAudio = async (show) => {
     try {
-      const response = await fetch(`${API_URL}/${show.id}`);
+      const response = await fetch(`${API_BASE_URL}/id/${show.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch show details');
       }
@@ -142,21 +143,22 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
               <Text size="2" mb="2">Seasons: {show.seasons}</Text>
               <Text size="2" mb="2">Last updated: {new Date(show.updated).toLocaleDateString()}</Text>
               <Text size="2" mb="2">Genres: {show.genres.map(genreId => getGenreTitle(genreId)).join(', ')}</Text>
-              <Flex gap="2" mt="2">
-                <Button asChild size="1">
-                  <Link to={`/show/${show.id}`}>View Details</Link>
-                </Button>
-                <Button onClick={() => handlePlayAudio(show)} size="1">
-                  <PlayIcon /> Play
-                </Button>
-                <Button 
-                  onClick={() => toggleFavorite(show)}
-                  variant="ghost"
-                  size="1"
-                >
-                  {isFavorite(show.id) ? <StarFilledIcon /> : <StarIcon />}
-                </Button>
-              </Flex>
+              <Flex className="button-container" gap="2" mt="2">
+  <Button asChild className="full-width-button view-details-btn custom-button" size="1">
+    <Link to={`/show/${show.id}`}>View Details</Link>
+  </Button>
+  <Button onClick={() => handlePlayAudio(show)} className="full-width-button play-button custom-button" size="1">
+    <PlayIcon /> Play
+  </Button>
+  <Button 
+    onClick={() => toggleFavorite(show)}
+    variant="ghost"
+    className="full-width-button favorite-button custom-button"
+    size="1"
+  >
+    {isFavorite(show.id) ? <StarFilledIcon /> : <StarIcon />}
+  </Button>
+</Flex>
             </Box>
           </Card>
         ))}

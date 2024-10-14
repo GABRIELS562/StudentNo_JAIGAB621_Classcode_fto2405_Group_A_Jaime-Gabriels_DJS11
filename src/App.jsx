@@ -11,6 +11,7 @@ import CompletedEpisodes from './components/CompletedEpisodes';
 import SearchBar from './components/SearchBar';
 import '@radix-ui/themes/styles.css';
 import './App.css';
+ 
 
 const API_BASE_URL = 'https://podcast-api.netlify.app';
 
@@ -29,22 +30,37 @@ const genreMap = {
 function App() {
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const [favorites, setFavorites] = useState([]);
-  const [completedEpisodes, setCompletedEpisodes] = useState([]);
+  const [listeningHistory, setListeningHistory] = useState([]);
   const [theme, setTheme] = useState('light');
   const [searchQuery, setSearchQuery] = useState('');
   const [playbackPositions, setPlaybackPositions] = useState({});
 
   useEffect(() => {
     const storedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const storedCompletedEpisodes = JSON.parse(localStorage.getItem('completedEpisodes') || '[]');
+    const storedListeningHistory = JSON.parse(localStorage.getItem('listeningHistory') || '[]');
     const storedTheme = localStorage.getItem('theme') || 'light';
     const storedPlaybackPositions = JSON.parse(localStorage.getItem('playbackPositions') || '{}');
     
     setFavorites(storedFavorites);
-    setCompletedEpisodes(storedCompletedEpisodes);
+    setListeningHistory(storedListeningHistory);
     setTheme(storedTheme);
     setPlaybackPositions(storedPlaybackPositions);
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (currentlyPlaying) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [currentlyPlaying]);
 
   const getGenreTitle = (genreId) => genreMap[genreId] || "Unknown Genre";
 
@@ -66,7 +82,7 @@ function App() {
       }
       
       const episodeId = `${showId}-S${seasonNumber}E${episodeNumber}`;
-      setCurrentlyPlaying({
+      const newEpisode = {
         id: episodeId,
         showId,
         showTitle: showData.title,
@@ -75,12 +91,35 @@ function App() {
         title: episode.title,
         file: episode.file,
         image: showData.image,
-        currentTime: playbackPositions[episodeId] || 0
-      });
+        currentTime: playbackPositions[episodeId] || 0,
+        completed: false,
+        startDate: new Date().toISOString()
+      };
+
+      setCurrentlyPlaying(newEpisode);
+      updateListeningHistory(newEpisode);
       console.log("Now playing:", episodeId);
     } catch (error) {
       console.error('Error playing audio:', error);
     }
+  };
+
+  const updateListeningHistory = (episode) => {
+    setListeningHistory(prevHistory => {
+      const index = prevHistory.findIndex(e => e.id === episode.id);
+      let newHistory;
+      if (index > -1) {
+        newHistory = [
+          { ...prevHistory[index], ...episode },
+          ...prevHistory.slice(0, index),
+          ...prevHistory.slice(index + 1)
+        ];
+      } else {
+        newHistory = [episode, ...prevHistory];
+      }
+      localStorage.setItem('listeningHistory', JSON.stringify(newHistory));
+      return newHistory;
+    });
   };
 
   const updatePlaybackPosition = (episodeId, currentTime) => {
@@ -88,6 +127,14 @@ function App() {
       const updated = { ...prev, [episodeId]: currentTime };
       localStorage.setItem('playbackPositions', JSON.stringify(updated));
       return updated;
+    });
+
+    setListeningHistory(prevHistory => {
+      const newHistory = prevHistory.map(episode => 
+        episode.id === episodeId ? { ...episode, currentTime } : episode
+      );
+      localStorage.setItem('listeningHistory', JSON.stringify(newHistory));
+      return newHistory;
     });
   };
 
@@ -151,33 +198,14 @@ function App() {
   };
 
   const markEpisodeAsCompleted = (episode) => {
-    setCompletedEpisodes(prevCompleted => {
-      const episodeId = `${episode.showId}-S${episode.seasonNumber}E${episode.episodeNumber}`;
-      const existingIndex = prevCompleted.findIndex(ep => ep.id === episodeId);
-      let newCompleted;
-      if (existingIndex !== -1) {
-        // Update existing episode
-        newCompleted = prevCompleted.map((ep, index) => 
-          index === existingIndex ? { ...ep, completedDate: new Date().toISOString() } : ep
-        );
-      } else {
-        // Add new episode
-        newCompleted = [...prevCompleted, {
-          ...episode,
-          id: episodeId,
-          completedDate: new Date().toISOString()
-        }];
-      }
-      localStorage.setItem('completedEpisodes', JSON.stringify(newCompleted));
-      console.log("Updated completed episodes:", newCompleted);
-      return newCompleted;
-    });
+    const completedEpisode = { ...episode, completed: true, completedDate: new Date().toISOString() };
+    updateListeningHistory(completedEpisode);
   };
 
   const resetListeningHistory = () => {
-    setCompletedEpisodes([]);
+    setListeningHistory([]);
     setPlaybackPositions({});
-    localStorage.removeItem('completedEpisodes');
+    localStorage.removeItem('listeningHistory');
     localStorage.removeItem('playbackPositions');
   };
 
@@ -188,141 +216,100 @@ function App() {
   return (
     <Theme appearance={theme}>
       <Router>
-        <AppContent
-          currentlyPlaying={currentlyPlaying}
-          playAudio={playAudio}
-          toggleFavorite={toggleFavorite}
-          isFavorite={isFavorite}
-          favorites={favorites}
-          completedEpisodes={completedEpisodes}
-          theme={theme}
-          toggleTheme={toggleTheme}
-          searchQuery={searchQuery}
-          handleSearch={handleSearch}
-          playbackPositions={playbackPositions}
-          getGenreTitle={getGenreTitle}
-          genreMap={genreMap}
-          resetListeningHistory={resetListeningHistory}
-          markEpisodeAsCompleted={markEpisodeAsCompleted}
-          updatePlaybackPosition={updatePlaybackPosition}
-        />
+        <div className={`app ${theme}-theme`}>
+          <nav className={`navbar ${theme}`}>
+            <div className="navbar-content">
+              <div className="navbar-left">
+                <Link to="/" className="logo">
+               
+                </Link>
+              </div>
+              <div className="navbar-center">
+                <ul>
+                  <li><Link to="/">Home</Link></li>
+                  <li><Link to="/shows">Shows</Link></li>
+                  <li><Link to="/favorites">Favorites</Link></li>
+                  <li><Link to="/completed">Listening History</Link></li>
+                </ul>
+              </div>
+              <div className="navbar-right">
+                <SearchBar onSearch={handleSearch} />
+                <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+              </div>
+            </div>
+          </nav>
+
+          <main className="content">
+            <Routes>
+              <Route path="/" element={<Home playAudio={playAudio} />} />
+              <Route 
+                path="/shows" 
+                element={
+                  <ShowList 
+                    playAudio={playAudio} 
+                    toggleFavorite={toggleFavorite} 
+                    isFavorite={isFavorite}
+                    searchQuery={searchQuery}
+                    playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
+                    genreMap={genreMap}
+                  />
+                } 
+              />
+              <Route 
+                path="/show/:id" 
+                element={
+                  <ShowDetails 
+                    playAudio={playAudio} 
+                    toggleFavorite={toggleFavorite} 
+                    isFavorite={isFavorite}
+                    playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
+                  />
+                } 
+              />
+              <Route 
+                path="/favorites" 
+                element={
+                  <Favorites 
+                    playAudio={playAudio} 
+                    favorites={favorites}
+                    toggleFavorite={toggleFavorite}
+                    searchQuery={searchQuery}
+                    playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
+                    genreMap={genreMap}
+                  />
+                } 
+              />
+              <Route 
+                path="/completed" 
+                element={
+                  <CompletedEpisodes 
+                    listeningHistory={listeningHistory}
+                    playAudio={playAudio}
+                    resetListeningHistory={resetListeningHistory}
+                    searchQuery={searchQuery}
+                    playbackPositions={playbackPositions}
+                    getGenreTitle={getGenreTitle}
+                  />
+                } 
+              />
+            </Routes>
+          </main>
+
+          {currentlyPlaying && (
+            <div className="fixed-audio-player">
+              <AudioPlayer 
+                currentEpisode={currentlyPlaying}
+                onComplete={() => markEpisodeAsCompleted(currentlyPlaying)}
+                updatePlaybackPosition={updatePlaybackPosition}
+              />
+            </div>
+          )}
+        </div>
       </Router>
     </Theme>
-  );
-}
-
-function AppContent({
-  currentlyPlaying,
-  playAudio,
-  toggleFavorite,
-  isFavorite,
-  favorites,
-  completedEpisodes,
-  theme,
-  toggleTheme,
-  searchQuery,
-  handleSearch,
-  playbackPositions,
-  getGenreTitle,
-  genreMap,
-  resetListeningHistory,
-  markEpisodeAsCompleted,
-  updatePlaybackPosition
-}) {
-  const location = useLocation();
-  const showSearchBar = !['/'].includes(location.pathname);
-
-  return (
-    <div className="app">
-      <nav className={`navbar ${theme}`}>
-        <div className="navbar-content">
-          <div className="navbar-left">
-            <Link to="/" className="logo">PodBlast</Link>
-          </div>
-          <div className="navbar-center">
-            <ul>
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/shows">Shows</Link></li>
-              <li><Link to="/favorites">Favorites</Link></li>
-              <li><Link to="/completed">Completed Episodes</Link></li>
-            </ul>
-          </div>
-          <div className="navbar-right">
-            {showSearchBar && <SearchBar onSearch={handleSearch} searchQuery={searchQuery} />}
-            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-          </div>
-        </div>
-      </nav>
-
-      <main className="content">
-        <Routes>
-          <Route path="/" element={<Home playAudio={playAudio} />} />
-          <Route 
-            path="/shows" 
-            element={
-              <ShowList 
-                playAudio={playAudio} 
-                toggleFavorite={toggleFavorite} 
-                isFavorite={isFavorite}
-                searchQuery={searchQuery}
-                playbackPositions={playbackPositions}
-                getGenreTitle={getGenreTitle}
-                genreMap={genreMap}
-              />
-            } 
-          />
-          <Route 
-            path="/show/:id" 
-            element={
-              <ShowDetails 
-                playAudio={playAudio} 
-                toggleFavorite={toggleFavorite} 
-                isFavorite={isFavorite}
-                playbackPositions={playbackPositions}
-                getGenreTitle={getGenreTitle}
-              />
-            } 
-          />
-          <Route 
-            path="/favorites" 
-            element={
-              <Favorites 
-                playAudio={playAudio} 
-                favorites={favorites}
-                toggleFavorite={toggleFavorite}
-                searchQuery={searchQuery}
-                playbackPositions={playbackPositions}
-                getGenreTitle={getGenreTitle}
-                genreMap={genreMap}
-              />
-            } 
-          />
-          <Route 
-            path="/completed" 
-            element={
-              <CompletedEpisodes 
-                completedEpisodes={completedEpisodes}
-                playAudio={playAudio}
-                resetListeningHistory={resetListeningHistory}
-                searchQuery={searchQuery}
-                playbackPositions={playbackPositions}
-                getGenreTitle={getGenreTitle}
-              />
-            } 
-          />
-        </Routes>
-      </main>
-
-      {currentlyPlaying && (
-        <div className="fixed-audio-player">
-          <AudioPlayer 
-            currentEpisode={currentlyPlaying}
-            onComplete={() => markEpisodeAsCompleted(currentlyPlaying)}
-            updatePlaybackPosition={updatePlaybackPosition}
-          />
-        </div>
-      )}
-    </div>
   );
 }
 
