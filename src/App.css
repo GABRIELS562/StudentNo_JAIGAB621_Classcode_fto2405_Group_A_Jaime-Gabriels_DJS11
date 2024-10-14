@@ -74,15 +74,27 @@ body {
   border-bottom: 1px solid #444444;
 }
 
-/* Navbar content layout */
 .navbar-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
   max-width: var(--max-width, 1200px);
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 0 var(--space-3);
   height: 100%;
+  background-color: var(--color-panel-solid);
+  color: var(--color-foreground);
+  border-radius: var(--radius-3);
+}
+
+/* You might want to add these styles for better theme integration */
+.navbar-content a {
+  color: var(--color-foreground);
+  text-decoration: none;
+}
+
+.navbar-content a:hover {
+  color: var(--color-foreground-contrast);
 }
 
 /* Navbar center section (navigation links) */
