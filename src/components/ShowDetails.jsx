@@ -1,108 +1,167 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Button, Text, Flex, Box, Card } from '@radix-ui/themes';
-import { StarFilledIcon, StarIcon, PlayIcon } from '@radix-ui/react-icons';
+import React, { useState, useMemo } from 'react';
+import { Button, Box, Text, Flex, Card, Select } from '@radix-ui/themes';
+import { PlayIcon, StarFilledIcon, StarIcon } from '@radix-ui/react-icons';
+import { Link } from 'react-router-dom';
 
-const API_URL = 'https://podcast-api.netlify.app/id/';
+function Favorites({ 
+  playAudio, 
+  favorites, 
+  toggleFavorite, 
+  searchQuery, 
+  playbackPositions, 
+  getGenreTitle, 
+  genreMap 
+}) {
+  const [sortOrder, setSortOrder] = useState('recentlyUpdated');
+  const [selectedGenre, setSelectedGenre] = useState('All');
 
-function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions }) {
-  const [show, setShow] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { id } = useParams();
-
-  useEffect(() => {
-    fetchShowDetails();
-  }, [id]);
-
-  const fetchShowDetails = async () => {
-    try {
-      const response = await fetch(`${API_URL}${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch show details');
+  const availableGenres = useMemo(() => {
+    const genres = new Set();
+    favorites.forEach(fav => {
+      if (Array.isArray(fav.genres)) {
+        fav.genres.forEach(genre => genres.add(genre));
       }
-      const data = await response.json();
-      setShow(data);
-      setIsLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setIsLoading(false);
+    });
+    return Array.from(genres);
+  }, [favorites]);
+
+  const filteredAndSortedFavorites = useMemo(() => {
+    let filtered = favorites;
+    if (searchQuery) {
+      const lowercaseQuery = searchQuery.toLowerCase();
+      filtered = favorites.filter(fav => 
+        fav.showTitle.toLowerCase().includes(lowercaseQuery) ||
+        (fav.title && fav.title.toLowerCase().includes(lowercaseQuery))
+      );
     }
+    if (selectedGenre !== 'All') {
+      filtered = filtered.filter(fav => 
+        Array.isArray(fav.genres) && fav.genres.includes(getGenreTitle(parseInt(selectedGenre)))
+      );
+    }
+    return [...filtered].sort((a, b) => {
+      switch (sortOrder) {
+        case 'recentlyUpdated':
+          return new Date(b.updated) - new Date(a.updated);
+        case 'leastRecentlyUpdated':
+          return new Date(a.updated) - new Date(b.updated);
+        case 'titleAZ':
+          return a.showTitle.localeCompare(b.showTitle);
+        case 'titleZA':
+          return b.showTitle.localeCompare(a.showTitle);
+        default:
+          return 0;
+      }
+    });
+  }, [favorites, searchQuery, sortOrder, selectedGenre, getGenreTitle]);
+
+  const handleRemoveFavorite = (favorite) => {
+    toggleFavorite(favorite);
   };
 
-  const handleToggleFavorite = (episode, seasonNumber) => {
-    toggleFavorite({
-      ...episode,
-      season: seasonNumber,
-      showId: show.id,
-      showTitle: show.title,
-      image: show.image
-    }, show);
+  const handlePlayAudio = (favorite) => {
+    playAudio(favorite.showId, favorite.season || 1, favorite.episode || 1);
   };
 
-  const handlePlayAudio = (seasonNumber, episodeNumber) => {
-    playAudio(show.id, seasonNumber, episodeNumber);
+  const handleSortChange = (newOrder) => {
+    setSortOrder(newOrder);
   };
 
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  const handleGenreChange = (value) => {
+    setSelectedGenre(value);
   };
-
-  if (isLoading) return <div className="loading">Loading...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
-  if (!show) return <div className="not-found">Show not found</div>;
 
   return (
-    <Box className="show-details">
-      <Text size="8" weight="bold" mb="4">{show.title}</Text>
-      <img src={show.image} alt={show.title} className="show-image" style={{ maxWidth: '300px', marginBottom: '20px' }} />
-      <Text size="3" mb="4">{show.description}</Text>
-      
-      {show.seasons.map((season) => (
-        <Card key={season.season} style={{ marginBottom: '20px' }}>
-          <Text size="6" weight="bold" mb="2">Season {season.season}</Text>
-          <Text size="3" mb="4">{season.title}</Text>
-          {season.episodes.map((episode) => {
-            const episodeId = `${show.id}-S${season.season}E${episode.episode}`;
-            const playbackPosition = playbackPositions[episodeId];
-            return (
-              <Card key={episode.episode} style={{ marginBottom: '10px' }}>
-                <Flex justify="between" align="center">
-                  <Box>
-                    <Text size="4" weight="bold">Episode {episode.episode}: {episode.title}</Text>
-                    <Text size="2">{episode.description}</Text>
-                    {playbackPosition && (
-                      <Text size="2" color="gray">
-                        Last played: {formatTime(playbackPosition)}
-                      </Text>
-                    )}
-                  </Box>
-                  <Flex className="button-container" gap="2">
-  <Button onClick={() => handlePlayAudio(season.season, episode.episode)} className="full-width-button play-button custom-button">
-    <PlayIcon /> Play
-  </Button>
-  <Button 
-    onClick={() => handleToggleFavorite(episode, season.season)}
-    variant="ghost"
-    className="full-width-button favorite-button custom-button"
-  >
-    {isFavorite(show.id, episode.title) ? <StarFilledIcon /> : <StarIcon />}
-  </Button>
-</Flex>
+    <Box className="favorites" style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+      <Text size="8" weight="bold" mb="4">Your Favorites</Text>
+      <Flex direction="column" gap="4" mb="4">
+        <Flex gap="2" wrap="wrap">
+          <Select.Root value={selectedGenre} onValueChange={handleGenreChange}>
+            <Select.Trigger />
+            <Select.Content>
+              <Select.Item value="All">All Genres</Select.Item>
+              {Object.entries(genreMap).map(([id, title]) => (
+                availableGenres.includes(title) && (
+                  <Select.Item key={id} value={id}>{title}</Select.Item>
+                )
+              ))}
+            </Select.Content>
+          </Select.Root>
+        </Flex>
+        <Flex gap="2" wrap="wrap">
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('recentlyUpdated')} variant={sortOrder === 'recentlyUpdated' ? 'solid' : 'outline'}>
+            Most Recently Updated
+          </Button>
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('leastRecentlyUpdated')} variant={sortOrder === 'leastRecentlyUpdated' ? 'solid' : 'outline'}>
+            Least Recently Updated
+          </Button>
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('titleAZ')} variant={sortOrder === 'titleAZ' ? 'solid' : 'outline'}>
+            Title A-Z
+          </Button>
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('titleZA')} variant={sortOrder === 'titleZA' ? 'solid' : 'outline'}>
+            Title Z-A
+          </Button>
+        </Flex>
+      </Flex>
+      {filteredAndSortedFavorites.length === 0 ? (
+        <Text size="3">No favorites found. {searchQuery || selectedGenre !== 'All' ? 'Try a different search term or genre.' : ''}</Text>
+      ) : (
+        <Flex wrap="wrap" gap="4" className="show-list">
+          {filteredAndSortedFavorites.map((favorite) => (
+            <Card key={favorite.id} style={{ width: '300px' }}>
+              <img 
+                src={favorite.image} 
+                alt={favorite.showTitle} 
+                style={{ width: '100%', height: '200px', objectFit: 'cover' }} 
+              />
+              <Box p="3">
+                <Text size="5" weight="bold" mb="2">{favorite.showTitle}</Text>
+                <br />
+                <Text size="2" mb="2">Seasons: {favorite.seasons || 'N/A'}</Text>
+                <br />
+                <Text size="2" mb="2">Last updated: {new Date(favorite.updated).toLocaleDateString()}</Text>
+                <br />
+                <Text size="2" mb="2">Genres: {Array.isArray(favorite.genres) ? favorite.genres.join(', ') : 'N/A'}</Text>
+                <br />
+                <Flex className="button-container" gap="2" mt="2">
+                  <Button 
+                    asChild 
+                    className="full-width-button view-details-btn custom-button" 
+                    size="2" 
+                    variant="soft" 
+                    style={{ 
+                      whiteSpace: 'nowrap', 
+                      maxWidth: "100px", 
+                      backgroundColor: '#64748b', 
+                      color: 'white' 
+                    }}
+                  >
+                    <Link to={`/show/${favorite.showId}`}>View Details</Link>
+                  </Button>
+                  <Button 
+                    style={{ backgroundColor: '#64748b', color: 'white' }} 
+                    onClick={() => handlePlayAudio(favorite)} 
+                    className="full-width-button play-button custom-button" 
+                    size="1"
+                  >
+                    <PlayIcon /> Play
+                  </Button>
+                  <Button 
+                    onClick={() => handleRemoveFavorite(favorite)}
+                    variant="ghost"
+                    className="full-width-button favorite-button custom-button"
+                    size="1"
+                  >
+                    <StarFilledIcon />
+                  </Button>
                 </Flex>
-              </Card>
-            );
-          })}
-        </Card>
-      ))}
-      
-      <Link to="/shows" className="back-link">
-        <Button variant="outline">Back to Shows</Button>
-      </Link>
+              </Box>
+            </Card>
+          ))}
+        </Flex>
+      )}
     </Box>
   );
 }
 
-export default ShowDetails;
+export default Favorites;

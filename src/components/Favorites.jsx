@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Button, Box, Text, Flex, Card, Select, ScrollArea } from '@radix-ui/themes';
-import { PlayIcon, StarFilledIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { Button, Box, Text, Flex, Card, Select } from '@radix-ui/themes';
+import { PlayIcon, StarFilledIcon, StarIcon } from '@radix-ui/react-icons';
+import { Link } from 'react-router-dom';
 
 function Favorites({ 
   playAudio, 
@@ -76,7 +77,7 @@ function Favorites({
       <Flex direction="column" gap="4" mb="4">
         <Flex gap="2" wrap="wrap">
           <Select.Root value={selectedGenre} onValueChange={handleGenreChange}>
-            <Select.Trigger aria-label="Select genre" />
+            <Select.Trigger />
             <Select.Content>
               <Select.Item value="All">All Genres</Select.Item>
               {Object.entries(genreMap).map(([id, title]) => (
@@ -88,16 +89,16 @@ function Favorites({
           </Select.Root>
         </Flex>
         <Flex gap="2" wrap="wrap">
-          <Button onClick={() => handleSortChange('recentlyUpdated')} variant={sortOrder === 'recentlyUpdated' ? 'solid' : 'outline'}>
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('recentlyUpdated')} variant={sortOrder === 'recentlyUpdated' ? 'solid' : 'outline'}>
             Most Recently Updated
           </Button>
-          <Button onClick={() => handleSortChange('leastRecentlyUpdated')} variant={sortOrder === 'leastRecentlyUpdated' ? 'solid' : 'outline'}>
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('leastRecentlyUpdated')} variant={sortOrder === 'leastRecentlyUpdated' ? 'solid' : 'outline'}>
             Least Recently Updated
           </Button>
-          <Button onClick={() => handleSortChange('titleAZ')} variant={sortOrder === 'titleAZ' ? 'solid' : 'outline'}>
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('titleAZ')} variant={sortOrder === 'titleAZ' ? 'solid' : 'outline'}>
             Title A-Z
           </Button>
-          <Button onClick={() => handleSortChange('titleZA')} variant={sortOrder === 'titleZA' ? 'solid' : 'outline'}>
+          <Button style={{ backgroundColor: '#64748b', color: 'white' }} onClick={() => handleSortChange('titleZA')} variant={sortOrder === 'titleZA' ? 'solid' : 'outline'}>
             Title Z-A
           </Button>
         </Flex>
@@ -105,46 +106,59 @@ function Favorites({
       {filteredAndSortedFavorites.length === 0 ? (
         <Text size="3">No favorites found. {searchQuery || selectedGenre !== 'All' ? 'Try a different search term or genre.' : ''}</Text>
       ) : (
-        <ScrollArea style={{ height: 'calc(100vh - 250px)' }}>
-          <Flex wrap="wrap" gap="4">
-            {filteredAndSortedFavorites.map((favorite) => (
-              <Card key={favorite.id} style={{ width: '250px' }}>
-                <img 
-                  src={favorite.image} 
-                  alt={favorite.showTitle} 
-                  style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px 4px 0 0' }} 
-                />
-                <Box p="3">
-                  <Text weight="bold" size="3" mb="1">{favorite.showTitle}</Text>
-                  {favorite.title && (
-                    <Text size="2" mb="1">Episode: {favorite.title}</Text>
-                  )}
-                  {favorite.season && (
-                    <Text size="2" mb="1">Season: {favorite.season}</Text>
-                  )}
-                  {favorite.episode && (
-                    <Text size="2" mb="1">Episode Number: {favorite.episode}</Text>
-                  )}
-                  {Array.isArray(favorite.genres) && favorite.genres.length > 0 && (
-                    <Text size="2" mb="1">
-                      Genres: {favorite.genres.join(', ')}
-                    </Text>
-                  )}
-                  <Text size="2" mb="2">Added on: {new Date(favorite.dateAdded).toLocaleDateString()}</Text>
-                  <Text size="2" mb="2">Updated: {new Date(favorite.updated).toLocaleDateString()}</Text>
-                  <Flex gap="2">
-                    <Button onClick={() => handlePlayAudio(favorite)} size="1" style={{ flex: 1 }}>
-                      <PlayIcon /> Play
-                    </Button>
-                    <Button onClick={() => handleRemoveFavorite(favorite)} size="1" variant="outline" style={{ flex: 1 }}>
-                      <StarFilledIcon /> Remove
-                    </Button>
-                  </Flex>
-                </Box>
-              </Card>
-            ))}
-          </Flex>
-        </ScrollArea>
+        <Flex wrap="wrap" gap="4" className="show-list">
+          {filteredAndSortedFavorites.map((favorite) => (
+            <Card key={favorite.id} style={{ width: '300px' }}>
+              <img 
+                src={favorite.image} 
+                alt={favorite.showTitle} 
+                style={{ width: '100%', height: '200px', objectFit: 'cover' }} 
+              />
+              <Box p="3">
+                <Text size="5" weight="bold" mb="2">{favorite.showTitle}</Text>
+                <br />
+                <Text size="2" mb="2">Seasons: {favorite.seasons || 'N/A'}</Text>
+                <br />
+                <Text size="2" mb="2">Last updated: {new Date(favorite.updated).toLocaleDateString()}</Text>
+                <br />
+                <Text size="2" mb="2">Genres: {Array.isArray(favorite.genres) ? favorite.genres.join(', ') : 'N/A'}</Text>
+                <br />
+                <Flex className="button-container" gap="2" mt="2">
+                  <Button 
+                    asChild 
+                    className="full-width-button view-details-btn custom-button" 
+                    size="2" 
+                    variant="soft" 
+                    style={{ 
+                      whiteSpace: 'nowrap', 
+                      maxWidth: "100px", 
+                      backgroundColor: '#64748b', 
+                      color: 'white' 
+                    }}
+                  >
+                    <Link to={`/show/${favorite.showId}`}>View Details</Link>
+                  </Button>
+                  <Button 
+                    style={{ backgroundColor: '#64748b', color: 'white' }} 
+                    onClick={() => handlePlayAudio(favorite)} 
+                    className="full-width-button play-button custom-button" 
+                    size="1"
+                  >
+                    <PlayIcon /> Play
+                  </Button>
+                  <Button 
+                    onClick={() => handleRemoveFavorite(favorite)}
+                    variant="ghost"
+                    className="full-width-button favorite-button custom-button"
+                    size="1"
+                  >
+                    <StarFilledIcon />
+                  </Button>
+                </Flex>
+              </Box>
+            </Card>
+          ))}
+        </Flex>
       )}
     </Box>
   );

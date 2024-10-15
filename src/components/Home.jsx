@@ -107,7 +107,7 @@ function Home({ playAudio }) {
     <Box className="home">
   <Flex direction="column" align="center" justify="center" style={{ textAlign: 'center', marginBottom: '24px' }}>
     <Heading size="8" className="welcome-heading">Welcome to PodBlast</Heading>
-    <Text size="4" align="center" mb="6">Discover and enjoy top podcasts</Text>
+    <Text size="4" align="center" mb="6" color="gray">Have a blast discovering and enjoying top podcasts</Text>
   </Flex>
 
   {/* Adjusted carousel size */}
@@ -127,9 +127,9 @@ function Home({ playAudio }) {
             objectPosition: 'center', /* Center the image in case of cropping */
           }} 
         />
-        <Flex direction="column" className="carousel-item-content" style={{ height: '40%', padding: '16px' }}>
-          <Heading size="8" mb="2">{show.title}</Heading>
-          <Text as="p" size="3" className="line-clamp" style={{ flexGrow: 1, color: 'white' }}>
+        <Flex direction="column" className="carousel-item-content" style={{ height: '100%', padding: '10px' }}>
+          <Heading size="7" mb="5">{show.title}</Heading>
+          <Text as="p" size="4" className="line-clamp" style={{ flexGrow: 1, color: 'white' }}>
             {show.description ? (show.description.length > 100 ? show.description.substring(0, 100) + '...' : show.description) : 'No description available'}
           </Text>
 
@@ -139,9 +139,10 @@ function Home({ playAudio }) {
               <Button 
                 onClick={() => handlePlayAudio(show)} 
                 className="carousel-button" 
-                size="3"
-                variant="solid"
-                style={{ width: '70%', marginRight: '8px', backgroundColor: '#64748b', color: 'white' }}
+                size="2"
+                variant="soft"
+                radius="large"
+                style={{ width: '5%', marginRight: '8px', backgroundColor: '#64748b', color: 'white' }}
               >
                 <PlayIcon /> Play Latest
               </Button>
@@ -150,9 +151,10 @@ function Home({ playAudio }) {
               <Button 
                 asChild 
                 className="carousel-button" 
-                size="3"
-                variant="solid"
-                style={{ width: '30%', backgroundColor: '#64748b', color: 'white' }}
+                size="2"
+                variant="soft"
+                radius="large"
+                style={{ width: '5%', backgroundColor: '#64748b', color: 'white' }}
               >
                 <Link to={`/show/${show.id}`}>View Details</Link>
               </Button>

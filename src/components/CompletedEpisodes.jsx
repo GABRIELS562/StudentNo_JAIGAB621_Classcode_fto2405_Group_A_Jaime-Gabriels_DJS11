@@ -61,7 +61,15 @@ function CompletedEpisodes({
             </Flex>
           )}
           <Flex mt="2" gap="2">
-            <Button onClick={() => handlePlayAudio(episode)} size="1">
+            <Button 
+              onClick={() => handlePlayAudio(episode)} 
+              size="1"
+              style={{ 
+                backgroundColor: '#64748b', 
+                color: 'white',
+                whiteSpace: 'nowrap'
+              }}
+            >
               <PlayIcon /> {episode.completed ? 'Play Again' : 'Resume'}
             </Button>
           </Flex>
