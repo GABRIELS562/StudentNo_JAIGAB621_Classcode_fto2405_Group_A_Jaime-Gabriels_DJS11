@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button, Box, Text, Flex, Card, Select } from '@radix-ui/themes';
-import { PlayIcon, StarFilledIcon, StarIcon } from '@radix-ui/react-icons';
+import { PlayIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { Link } from 'react-router-dom';
 
 function Favorites({ 
@@ -9,21 +9,16 @@ function Favorites({
   toggleFavorite, 
   searchQuery, 
   playbackPositions, 
-  getGenreTitle, 
+  getGenreTitle,
   genreMap 
 }) {
   const [sortOrder, setSortOrder] = useState('recentlyUpdated');
   const [selectedGenre, setSelectedGenre] = useState('All');
 
-  const availableGenres = useMemo(() => {
-    const genres = new Set();
-    favorites.forEach(fav => {
-      if (Array.isArray(fav.genres)) {
-        fav.genres.forEach(genre => genres.add(genre));
-      }
-    });
-    return Array.from(genres);
-  }, [favorites]);
+  useEffect(() => {
+    console.log('Favorites:', favorites);
+    console.log('GenreMap:', genreMap);
+  }, [favorites, genreMap]);
 
   const filteredAndSortedFavorites = useMemo(() => {
     let filtered = favorites;
@@ -36,7 +31,7 @@ function Favorites({
     }
     if (selectedGenre !== 'All') {
       filtered = filtered.filter(fav => 
-        Array.isArray(fav.genres) && fav.genres.includes(getGenreTitle(parseInt(selectedGenre)))
+        Array.isArray(fav.genres) && fav.genres.includes(parseInt(selectedGenre))
       );
     }
     return [...filtered].sort((a, b) => {
@@ -53,14 +48,18 @@ function Favorites({
           return 0;
       }
     });
-  }, [favorites, searchQuery, sortOrder, selectedGenre, getGenreTitle]);
+  }, [favorites, searchQuery, sortOrder, selectedGenre]);
 
   const handleRemoveFavorite = (favorite) => {
     toggleFavorite(favorite);
   };
 
   const handlePlayAudio = (favorite) => {
-    playAudio(favorite.showId, favorite.season || 1, favorite.episode || 1);
+    if (favorite.episode) {
+      playAudio(favorite.showId, favorite.season, favorite.episode);
+    } else {
+      playAudio(favorite.id, 1, 1);  // Play first episode of first season for show favorites
+    }
   };
 
   const handleSortChange = (newOrder) => {
@@ -69,6 +68,18 @@ function Favorites({
 
   const handleGenreChange = (value) => {
     setSelectedGenre(value);
+  };
+
+  const renderGenres = (favorite) => {
+    console.log('Rendering genres for:', favorite.showTitle, 'Genres:', favorite.genres);
+    if (!favorite.genres || favorite.genres.length === 0) {
+      return 'No genres available';
+    }
+    return favorite.genres.map(genreId => {
+      const genreTitle = getGenreTitle(genreId);
+      console.log('Genre ID:', genreId, 'Genre Title:', genreTitle);
+      return genreTitle;
+    }).join(', ');
   };
 
   return (
@@ -81,9 +92,7 @@ function Favorites({
             <Select.Content>
               <Select.Item value="All">All Genres</Select.Item>
               {Object.entries(genreMap).map(([id, title]) => (
-                availableGenres.includes(title) && (
-                  <Select.Item key={id} value={id}>{title}</Select.Item>
-                )
+                <Select.Item key={id} value={id}>{title}</Select.Item>
               ))}
             </Select.Content>
           </Select.Root>
@@ -115,13 +124,40 @@ function Favorites({
                 style={{ width: '100%', height: '200px', objectFit: 'cover' }} 
               />
               <Box p="3">
-                <Text size="5" weight="bold" mb="2">{favorite.showTitle}</Text>
+                <Flex justify="between" align="center">
+                  <Text size="5" weight="bold" mb="2">{favorite.showTitle}</Text>
+                  <Button 
+                    onClick={() => handleRemoveFavorite(favorite)}
+                    variant="ghost"
+                    size="1"
+                    style={{ 
+                      color: '#dc2626', 
+                      fontWeight: 'bold',
+                      fontSize: '1.2em'
+                    }}
+                  >
+                    <Cross1Icon />
+                  </Button>
+                </Flex>
                 <br />
-                <Text size="2" mb="2">Seasons: {favorite.seasons || 'N/A'}</Text>
-                <br />
+                {favorite.episode ? (
+                  <>
+                    <Text size="3" mb="2">Episode: {favorite.title}</Text>
+                    <br />
+                    <Text size="2" mb="2">Season: {favorite.season}</Text>
+                    <br />
+                    <Text size="2" mb="2">Episode Number: {favorite.episode}</Text>
+                    <br />
+                  </>
+                ) : (
+                  <>
+                    <Text size="2" mb="2">Seasons: {favorite.seasons || 'N/A'}</Text>
+                    <br />
+                  </>
+                )}
                 <Text size="2" mb="2">Last updated: {new Date(favorite.updated).toLocaleDateString()}</Text>
                 <br />
-                <Text size="2" mb="2">Genres: {Array.isArray(favorite.genres) ? favorite.genres.join(', ') : 'N/A'}</Text>
+                <Text size="2" mb="2">Genres: {renderGenres(favorite)}</Text>
                 <br />
                 <Flex className="button-container" gap="2" mt="2">
                   <Button 
@@ -130,29 +166,20 @@ function Favorites({
                     size="2" 
                     variant="soft" 
                     style={{ 
-                      whiteSpace: 'nowrap', 
-                      maxWidth: "100px", 
+                      flex: 1,
                       backgroundColor: '#64748b', 
                       color: 'white' 
                     }}
                   >
-                    <Link to={`/show/${favorite.showId}`}>View Details</Link>
+                    <Link to={`/show/${favorite.showId || favorite.id}`}>View Details</Link>
                   </Button>
                   <Button 
-                    style={{ backgroundColor: '#64748b', color: 'white' }} 
+                    style={{ flex: 1, backgroundColor: '#64748b', color: 'white' }} 
                     onClick={() => handlePlayAudio(favorite)} 
                     className="full-width-button play-button custom-button" 
-                    size="1"
+                    size="2"
                   >
                     <PlayIcon /> Play
-                  </Button>
-                  <Button 
-                    onClick={() => handleRemoveFavorite(favorite)}
-                    variant="ghost"
-                    className="full-width-button favorite-button custom-button"
-                    size="1"
-                  >
-                    <StarFilledIcon />
                   </Button>
                 </Flex>
               </Box>
