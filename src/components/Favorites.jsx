@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button, Box, Text, Flex, Card, Select } from '@radix-ui/themes';
 import { PlayIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { Link } from 'react-router-dom';
@@ -15,25 +15,31 @@ function Favorites({
   const [sortOrder, setSortOrder] = useState('recentlyUpdated');
   const [selectedGenre, setSelectedGenre] = useState('All');
 
-  useEffect(() => {
-    console.log('Favorites:', favorites);
-    console.log('GenreMap:', genreMap);
-  }, [favorites, genreMap]);
-
   const filteredAndSortedFavorites = useMemo(() => {
     let filtered = favorites;
+    
     if (searchQuery) {
       const lowercaseQuery = searchQuery.toLowerCase();
-      filtered = favorites.filter(fav => 
+      filtered = filtered.filter(fav => 
         fav.showTitle.toLowerCase().includes(lowercaseQuery) ||
         (fav.title && fav.title.toLowerCase().includes(lowercaseQuery))
       );
     }
+    
     if (selectedGenre !== 'All') {
-      filtered = filtered.filter(fav => 
-        Array.isArray(fav.genres) && fav.genres.includes(parseInt(selectedGenre))
-      );
+      filtered = filtered.filter(fav => {
+        const favGenres = Array.isArray(fav.genres) ? fav.genres : [];
+        return favGenres.some(genre => {
+          if (typeof genre === 'number') {
+            return genre === parseInt(selectedGenre);
+          } else if (typeof genre === 'string') {
+            return genre.toLowerCase() === genreMap[selectedGenre].toLowerCase();
+          }
+          return false;
+        });
+      });
     }
+
     return [...filtered].sort((a, b) => {
       switch (sortOrder) {
         case 'recentlyUpdated':
@@ -48,7 +54,7 @@ function Favorites({
           return 0;
       }
     });
-  }, [favorites, searchQuery, sortOrder, selectedGenre]);
+  }, [favorites, searchQuery, sortOrder, selectedGenre, genreMap]);
 
   const handleRemoveFavorite = (favorite) => {
     toggleFavorite(favorite);
@@ -71,15 +77,20 @@ function Favorites({
   };
 
   const renderGenres = (favorite) => {
-    console.log('Rendering genres for:', favorite.showTitle, 'Genres:', favorite.genres);
     if (!favorite.genres || favorite.genres.length === 0) {
       return 'No genres available';
     }
-    return favorite.genres.map(genreId => {
-      const genreTitle = getGenreTitle(genreId);
-      console.log('Genre ID:', genreId, 'Genre Title:', genreTitle);
-      return genreTitle;
-    }).join(', ');
+    return favorite.genres
+      .filter(genre => genre !== 'All' && genre !== 'Featured')
+      .map(genre => {
+        if (typeof genre === 'number') {
+          return getGenreTitle(genre);
+        } else if (typeof genre === 'string') {
+          return genre;
+        }
+        return 'Unknown Genre';
+      })
+      .join(', ');
   };
 
   return (
@@ -90,7 +101,8 @@ function Favorites({
           <Select.Root value={selectedGenre} onValueChange={handleGenreChange}>
             <Select.Trigger />
             <Select.Content>
-              <Select.Item value="All">All Genres</Select.Item>
+              <Select.Item value="All">All Genres</Select.Item><br />
+
               {Object.entries(genreMap).map(([id, title]) => (
                 <Select.Item key={id} value={id}>{title}</Select.Item>
               ))}
@@ -142,22 +154,16 @@ function Favorites({
                 <br />
                 {favorite.episode ? (
                   <>
-                    <Text size="3" mb="2">Episode: {favorite.title}</Text>
-                    <br />
-                    <Text size="2" mb="2">Season: {favorite.season}</Text>
-                    <br />
+                    <Text size="3" mb="2">Episode: {favorite.title}</Text><br />
+
+                    <Text size="2" mb="2">Season: {favorite.season}</Text><br />
                     <Text size="2" mb="2">Episode Number: {favorite.episode}</Text>
-                    <br />
                   </>
                 ) : (
-                  <>
-                    <Text size="2" mb="2">Seasons: {favorite.seasons || 'N/A'}</Text>
-                    <br />
-                  </>
-                )}
-                <Text size="2" mb="2">Last updated: {new Date(favorite.updated).toLocaleDateString()}</Text>
-                <br />
-                <Text size="2" mb="2">Genres: {renderGenres(favorite)}</Text>
+                  <Text size="2" mb="2">Seasons: {favorite.seasons || 'N/A'}</Text> 
+                )}<br />
+                <Text size="2" mb="2">Last updated: {new Date(favorite.updated).toLocaleDateString()}</Text><br />
+                <Text size="2" mb="2">Genres: {renderGenres(favorite)}</Text><br />
                 <br />
                 <Flex className="button-container" gap="2" mt="2">
                   <Button 

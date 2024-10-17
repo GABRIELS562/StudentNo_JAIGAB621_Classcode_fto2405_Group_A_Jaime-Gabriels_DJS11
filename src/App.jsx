@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Theme } from '@radix-ui/themes';
 import Home from './components/Home';
 import ShowList from './components/ShowList';
@@ -11,7 +11,6 @@ import CompletedEpisodes from './components/CompletedEpisodes';
 import SearchBar from './components/SearchBar';
 import '@radix-ui/themes/styles.css';
 import './App.css';
- 
 
 const API_BASE_URL = 'https://podcast-api.netlify.app';
 
@@ -138,50 +137,56 @@ function App() {
     });
   };
 
-  const toggleFavorite = (item, show = null) => {
-    setFavorites(prevFavorites => {
-      let newFavorites;
+  const toggleFavorite = async (item, show = null) => {
+    try {
+      let favoriteItem;
       if (item.episode || (show && item.title)) {
         // It's an episode
-        const favId = show ? `${show.id}-${item.title}` : item.id;
-        const index = prevFavorites.findIndex(fav => fav.id === favId);
-        if (index > -1) {
-          newFavorites = prevFavorites.filter(fav => fav.id !== favId);
-        } else {
-          newFavorites = [...prevFavorites, { 
-            id: favId,
-            showId: show ? show.id : item.showId,
-            showTitle: show ? show.title : item.showTitle,
-            title: item.title,
-            season: item.season,
-            episode: item.episode,
-            file: item.file,
-            image: show ? show.image : item.image,
-            genres: show ? show.genres.map(getGenreTitle) : item.genres,
-            dateAdded: new Date().toISOString(),
-            updated: show ? show.updated : item.updated
-          }];
-        }
+        const showResponse = await fetch(`${API_BASE_URL}/id/${show ? show.id : item.showId}`);
+        const showData = await showResponse.json();
+        favoriteItem = {
+          id: `${show ? show.id : item.showId}-${item.title}`,
+          showId: show ? show.id : item.showId,
+          showTitle: show ? show.title : item.showTitle,
+          title: item.title,
+          season: item.season,
+          episode: item.episode,
+          file: item.file,
+          image: showData.image,
+          genres: showData.genres, // This will be an array of genre IDs
+          dateAdded: new Date().toISOString(),
+          updated: showData.updated
+        };
       } else {
         // It's a show
-        const index = prevFavorites.findIndex(fav => fav.id === item.id);
-        if (index > -1) {
-          newFavorites = prevFavorites.filter(fav => fav.id !== item.id);
-        } else {
-          newFavorites = [...prevFavorites, { 
-            id: item.id,
-            showId: item.id,
-            showTitle: item.title,
-            image: item.image,
-            genres: item.genres.map(getGenreTitle),
-            dateAdded: new Date().toISOString(),
-            updated: item.updated
-          }];
-        }
+        const showResponse = await fetch(`${API_BASE_URL}/id/${item.id}`);
+        const showData = await showResponse.json();
+        favoriteItem = {
+          id: item.id,
+          showId: item.id,
+          showTitle: item.title,
+          image: showData.image,
+          genres: showData.genres, // This will be an array of genre IDs
+          seasons: showData.seasons.length,
+          dateAdded: new Date().toISOString(),
+          updated: showData.updated
+        };
       }
-      localStorage.setItem('favorites', JSON.stringify(newFavorites));
-      return newFavorites;
-    });
+
+      setFavorites(prevFavorites => {
+        const index = prevFavorites.findIndex(fav => fav.id === favoriteItem.id);
+        let newFavorites;
+        if (index > -1) {
+          newFavorites = prevFavorites.filter(fav => fav.id !== favoriteItem.id);
+        } else {
+          newFavorites = [...prevFavorites, favoriteItem];
+        }
+        localStorage.setItem('favorites', JSON.stringify(newFavorites));
+        return newFavorites;
+      });
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   const isFavorite = (showId, episodeTitle) => {
@@ -231,7 +236,6 @@ function App() {
               </div>
             </div>
           </nav>
-
 
           <main className="content">
             <Routes>

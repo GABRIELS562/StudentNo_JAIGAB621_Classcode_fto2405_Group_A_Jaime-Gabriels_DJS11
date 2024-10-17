@@ -1,7 +1,6 @@
-
 # PodBlast - Podcast Discovery and Listening Platform
 
-PodBlast is a modern, feature-rich web application for discovering, managing, and listening to podcasts. Built with React and Vite, and leveraging the power of various libraries, PodBlast offers a seamless and engaging podcast experience.
+PodBlast is a modern, feature-rich web application for discovering, managing, and listening to podcasts. Built with React and leveraging the power of various libraries, PodBlast offers a seamless and engaging podcast experience.
 
 ## Features
 
@@ -22,13 +21,12 @@ This project relies on the following main dependencies:
 - @radix-ui/react-icons
 - react-slick
 - slick-carousel
-- Vite (as the build tool)
 
 For a complete list of dependencies, please refer to the `package.json` file.
 
 ## Setup and Installation
 
-1. Ensure you have Node.js and npm installed on your system. You can download them from [nodejs.org](https://nodejs.org/).
+1. Ensure you have Node.js and npm installed on your system.
 
 2. Clone the repository:
    ```
@@ -51,15 +49,6 @@ For a complete list of dependencies, please refer to the `package.json` file.
    ```
 
 The application should now be running on `http://localhost:5173` (or another port if 5173 is occupied).
-
-## Building for Production
-
-To create a production build, run:
-```
-npm run build
-```
-
-This will generate optimized files in the `dist` directory.
 
 ## API
 
@@ -87,6 +76,12 @@ The app uses a combination of custom CSS and Radix UI components for styling. Th
 ## Contributing
 
 Contributions to PodBlast are welcome! Please feel free to submit a Pull Request.
+
+## Contact Information
+
+👤 Name: Jaime Gabriels 
+📧 Email: jgabriels26@gmail.com 
+🐙 GitHub: https://github.com/GABRIELS562
 
 ## License
 
