@@ -105,78 +105,69 @@ function Home({ playAudio }) {
 
   return (
     <Box className="home">
-  <Flex direction="column" align="center" justify="center" style={{ textAlign: 'center', marginBottom: '24px' }}>
-    <Heading size="8" className="welcome-heading">Welcome to PodBlast</Heading>
-    <Text size="4" align="center" mb="6" color="gray">Have a blast discovering and enjoying top podcasts</Text>
-  </Flex>
+      <Flex direction="column" align="center" justify="center" style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <Heading size="8" className="welcome-heading">Welcome to PodBlast</Heading>
+        <Text size="4" align="center" mb="6" color="gray">Have a blast discovering and enjoying top podcasts</Text>
+      </Flex>
 
-  {/* Adjusted carousel size */}
-  <Card className="carousel-container" style={{ height: '500px', width: '90%', margin: '0 auto', paddingBottom: '40px' }}>
-    <Slider {...settings}>
-      {shows.map(show => (
-        <Box key={show.id} className="carousel-item" style={{ height: '100%', width: '90%', margin: '0 auto' }}>
-        {/* Updated image styling */}
+      <Card className="carousel-container">
+  <Slider {...settings}>
+    {shows.map(show => (
+      <Box key={show.id} className="carousel-item">
         <img 
           src={show.image} 
           alt={show.title} 
-          className="carousel-image" 
-          style={{ 
-            width: '100%',         /* Ensure the image fills the width */
-            height: '100%',        /* Ensure the image fills the height */
-            objectFit: 'cover',    /* Make sure the image covers the entire area */
-            objectPosition: 'center', /* Center the image in case of cropping */
-          }} 
+          className="carousel-image"
         />
-        <Flex direction="column" className="carousel-item-content" style={{ height: '100%', padding: '10px' }}>
-          <Heading size="7" mb="5">{show.title}</Heading>
-          <Text as="p" size="4" className="line-clamp" style={{ flexGrow: 1, color: 'white' }}>
-            {show.description ? (show.description.length > 100 ? show.description.substring(0, 100) + '...' : show.description) : 'No description available'}
-          </Text>
-
-            {/* Buttons with adjusted widths */}
-            <Flex className="carousel-buttons" justify="between" mt="4">
-              {/* Play Latest Button with 70% width */}
-              <Button 
-                onClick={() => handlePlayAudio(show)} 
-                className="carousel-button" 
-                size="2"
-                variant="soft"
-                radius="large"
-                style={{ width: '5%', marginRight: '8px', backgroundColor: '#64748b', color: 'white' }}
-              >
-                <PlayIcon /> Play Latest
-              </Button>
-
-              {/* View Details Button with 30% width */}
-              <Button 
-                asChild 
-                className="carousel-button" 
-                size="2"
-                variant="soft"
-                radius="large"
-                style={{ width: '5%', backgroundColor: '#64748b', color: 'white' }}
-              >
-                <Link to={`/show/${show.id}`}>View Details</Link>
-              </Button>
-            </Flex>
+        <Flex 
+          direction="column" 
+          className="carousel-item-content"
+        >
+          <Box>
+            <Heading size="7" mb="3">{show.title}</Heading>
+            <Text as="p" size="2" className="line-clamp" style={{ maxHeight: '4.5em', overflow: 'hidden' }}>
+              {show.description ? (show.description.length > 150 ? show.description.substring(0, 150) + '...' : show.description) : 'No description available'}
+            </Text>
+          </Box>
+          <Flex className="carousel-buttons" justify="center" gap="2">
+            <Button 
+              onClick={() => handlePlayAudio(show)} 
+              size="2"
+              className="carousel-button"style={{ 
+                backgroundColor: '#64748b', 
+                color: 'white',
+                padding: '0 20px'
+              }}
+            >
+              <PlayIcon /> Play Latest
+            </Button>
+            <Button 
+              asChild 
+              size="2"
+              className="carousel-button" style={{ 
+                backgroundColor: '#64748b', 
+                color: 'white',
+                padding: '0 20px'
+              }}
+            >
+              <Link to={`/show/${show.id}`}>View Details</Link>
+            </Button>
           </Flex>
-        </Box>
-      ))}
-    </Slider>
-  </Card>
+        </Flex>
+      </Box>
+    ))}
+  </Slider>
+</Card>
 
-  <Flex justify="center" mt="6">
-    <Button asChild size="3"
-       style={{ width: '30%', backgroundColor: '#64748b', color: 'white' }}>
-      <Link to="/shows" className="view-all-link">
-        View All Shows <ArrowRightIcon />
-      </Link>
-    </Button>
-  </Flex>
-</Box>
-    );
-  }
-  
-
+      <Flex justify="center" mt="6">
+        <Button asChild size="3" style={{ width: '30%', backgroundColor: '#64748b', color: 'white' }}>
+          <Link to="/shows" className="view-all-link">
+            View All Shows <ArrowRightIcon />
+          </Link>
+        </Button>
+      </Flex>
+    </Box>
+  );
+}
 
 export default Home;

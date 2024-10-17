@@ -161,28 +161,65 @@ body {
   object-position: center;
 }
 
+
 .carousel-item-content {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   padding: 20px;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.7) 100%);
   color: white;
-  height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.carousel-buttons {
-  margin-top: auto;
-  display: flex;
   justify-content: space-between;
 }
 
+.carousel-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 200px;
+  
+  z-index: 10;
+}
+
 .carousel-button {
-  flex: 1;
-  margin: 0 4px;
+  flex: 0 1 auto;
+  padding: 10px 20px;
+  background-color: #808080; /* Medium grey */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.carousel-button:hover {
+  background-color: rgb(100,116,139); /* Darker grey for hover state */
+}
+
+/* Custom arrow styles */
+.slick-prev,
+.slick-next {
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+}
+
+.slick-prev {
+  left: 10px;
+}
+
+.slick-next {
+  right: 10px;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  font-size: 40px;
 }
 
 .line-clamp {
@@ -442,34 +479,8 @@ body {
     font-size: 2rem;
   }
 
-  .carousel-container {
-    height: 400px;
-  }
+ /* Carousel Styles */
 
-  .carousel-item-content {
-    padding: 15px;
-  }
-
-  .carousel-buttons {
-    flex-direction: column;
-  }
-
-  .carousel-button {
-    margin: 5px 0;
-    width: 100% !important;
-  }
-
-  .view-all-link {
-    width: 80%;
-  }
-
-  .show-list {
-    grid-template-columns: 1fr;
-  }
-
-  .button-container {
-    flex-direction: column;
-  }
 
   .audio-player {
     flex-direction: column;

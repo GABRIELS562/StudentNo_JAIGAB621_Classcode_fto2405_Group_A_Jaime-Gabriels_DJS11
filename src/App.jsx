@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Theme } from '@radix-ui/themes';
 import Home from './components/Home';
-import ShowList from './components/ShowList';
+import ShowList from './components/Showlist';
 import ShowDetails from './components/ShowDetails';
 import Favorites from './components/Favorites';
 import ThemeToggle from './components/ThemeToggle';
