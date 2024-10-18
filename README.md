@@ -2,6 +2,10 @@
 
 PodBlast is a modern, feature-rich web application for discovering, managing, and listening to podcasts. Built with React and leveraging the power of various libraries, PodBlast offers a seamless and engaging podcast experience.
 
+## url
+
+- https://podblast100.netlify.app/
+
 ## Features
 
 - Browse and search through a wide range of podcasts
