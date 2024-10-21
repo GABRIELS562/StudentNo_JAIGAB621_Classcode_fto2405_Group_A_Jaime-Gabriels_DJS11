@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick-theme.css";
 
 const API_URL = 'https://podcast-api.netlify.app';
 
+//duplicate but when i delete i get an error
 function CustomPrevArrow(props) {
   const { className, style, onClick } = props;
   return (
@@ -43,10 +44,10 @@ function CustomNextArrow(props) {
   );
 }
 
-function Home({ playAudio }) {
-  const [shows, setShows] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+function Home({ playAudio }) { //destructures playaudio function
+  const [shows, setShows] = useState([]); //setter function initialised to empty array
+  const [isLoading, setIsLoading] = useState(true); //is loadingn while loading 
+  const [error, setError] = useState(null); //store error 
 
   useEffect(() => {
     fetchShows();
@@ -59,7 +60,7 @@ function Home({ playAudio }) {
         throw new Error('Failed to fetch shows');
       }
       const data = await response.json();
-      setShows(data.slice(0, 10)); // Show top 10 podcasts
+      setShows(data.slice(0, 10)); // Show top 10 podcasts in carousel 
       setIsLoading(false);
     } catch (err) {
       setError(err.message);
@@ -85,7 +86,16 @@ function Home({ playAudio }) {
     } catch (error) {
       console.error('Error fetching show details:', error);
     }
-  };
+  };/*
+  Overall, this function does the following:
+
+Fetches detailed information about a show from an API.
+Checks if the show has any episodes.
+If episodes exist, it plays the first episode of the first season.
+If no episodes are found or if any errors occur during the process, it logs appropriate error messages.
+
+This function is likely used when a user clicks on a show to start playing it, and it plays the first episode of the first season.
+  */
 
   const settings = {
     dots: true,

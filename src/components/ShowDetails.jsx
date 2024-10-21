@@ -17,20 +17,20 @@ const genreMap = {
   9: "Kids and Family"
 };
 
-function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions }) {
+function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions }) { //destructures these props 
   const [show, setShow] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);//while loading 
   const [error, setError] = useState(null);
-  const [selectedSeason, setSelectedSeason] = useState(1);
-  const { id } = useParams();
+  const [selectedSeason, setSelectedSeason] = useState(1);//keeps track of which season they viewing 
+  const { id } = useParams();//use Params s a hook from react-router that extracts the id parameter from the URL to fetch specific show details
 
-  useEffect(() => {
+  useEffect(() => {//runs when component mounts 
     fetchShowDetails();
   }, [id]);
 
   const fetchShowDetails = async () => {
     try {
-      const response = await fetch(`${API_URL}${id}`);
+      const response = await fetch(`${API_URL}${id}`);//await fetch option to complete befor moving to next line
       if (!response.ok) {
         throw new Error('Failed to fetch show details');
       }
@@ -42,6 +42,7 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions 
       setIsLoading(false);
     }
   };
+  //This function is a crucial part of the ShowDetails component, responsible for fetching the data that will be displayed to the user. Its asynchronous nature and error handling make it robust and user-friendly,
 
   const handleToggleFavorite = (episode) => {
     if (show) {
@@ -54,19 +55,23 @@ function ShowDetails({ playAudio, toggleFavorite, isFavorite, playbackPositions 
       }, show);
     }
   };
+  /*
+Combining Data: This function combines data from the individual episode, the current show, and the component's state (selectedSeason) to create a comprehensive favorite object.
+Flexible Favoriting: By including both episode-specific and show-specific data, this function allows for favoriting either entire shows or specific episodes.
+  */
 
   const handlePlayAudio = (episodeNumber) => {
     if (show) {
       playAudio(show.id, selectedSeason, episodeNumber);
     }
   };
-
+//By using show.id and selectedSeason, the function ensures that the correct show and season context is provided when playing an episode.
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-
+//This function iused in the context of displaying playback times for podcast episodes, such as current play time or episode duration.
   const getGenreTitle = (genre) => {
     if (typeof genre === 'number') {
       return genreMap[genre] || `Unknown (${genre})`;

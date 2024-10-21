@@ -6,7 +6,7 @@ import { StarFilledIcon, StarIcon, PlayIcon } from '@radix-ui/react-icons';
 const API_BASE_URL = 'https://podcast-api.netlify.app';
 const SHOWS_URL = `${API_BASE_URL}/shows`;
 
-function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playbackPositions, getGenreTitle, genreMap }) {
+function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playbackPositions, getGenreTitle, genreMap }) {//all props
   const [shows, setShows] = useState([]);
   const [filteredShows, setFilteredShows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,17 +15,17 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
   const [selectedGenre, setSelectedGenre] = useState('All');
   const [showDetails, setShowDetails] = useState({});
 
-  useEffect(() => {
+  useEffect(() => {// run when component mounts
     fetchShows();
   }, []);
 
   useEffect(() => {
     filterAndSortShows();
-  }, [shows, sortOrder, selectedGenre, searchQuery]);
+  }, [shows, sortOrder, selectedGenre, searchQuery]);//runs when user clicks
 
   useEffect(() => {
     fetchShowDetails();
-  }, [filteredShows]);
+  }, [filteredShows]);// details ofv filtered shoews
 
   const fetchShows = async () => {
     try {
@@ -35,23 +35,23 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
         throw new Error('Failed to fetch shows');
       }
       const data = await response.json();
-      setShows(data);
-      setFilteredShows(data);
+      setShows(data);//all show data displayed
+      setFilteredShows(data);//sets it to be all the same 
       setIsLoading(false);
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
     }
-  };
+  };//not displayed alphabetically but would be taking away order button
 
-  const fetchShowDetails = async () => {
+  const fetchShowDetails = async () => {//fethes more detailed information
     const details = {};
     for (const show of filteredShows) {
       try {
         const response = await fetch(`${API_BASE_URL}/id/${show.id}`);
         if (response.ok) {
           const data = await response.json();
-          const totalEpisodes = data.seasons.reduce((sum, season) => sum + season.episodes.length, 0);
+          const totalEpisodes = data.seasons.reduce((sum, season) => sum + season.episodes.length, 0);//episode counting  function enhances the ShowList component by providing additional information (total episode count) for each show in the filtered list. 
           details[show.id] = { totalEpisodes };
         }
       } catch (error) {
@@ -96,11 +96,11 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
   };
 
   const handleSortChange = (newOrder) => {
-    setSortOrder(newOrder);
+    setSortOrder(newOrder);//update sort state
   };
 
   const handleGenreChange = (value) => {
-    setSelectedGenre(value);
+    setSelectedGenre(value);//update genre state
   };
 
   const handlePlayAudio = async (show) => {
@@ -124,7 +124,8 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
   };
 
   if (isLoading) return <div className="loading">Loading...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (error) return <div className="error">Error: {error}</div>;//if clicked it will load
+
 
   return (
     <Box className="show-list-container">

@@ -26,6 +26,7 @@ function FavoritesManager({ playAudio }) {
       return newFavorites;
     });
   };
+  //Overall, toggleFavorite is a comprehensive function that handles the logic of adding and removing favorites, updates the component state, and ensures persistence of user preferences
 
   return (
     <Favorites 

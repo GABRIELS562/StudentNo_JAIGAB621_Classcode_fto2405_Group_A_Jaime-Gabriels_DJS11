@@ -27,30 +27,32 @@ const genreMap = {
 };
 
 function App() {
-  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null); // State variable and setter function (current set to null)
   const [favorites, setFavorites] = useState([]);
   const [listeningHistory, setListeningHistory] = useState([]);
-  const [theme, setTheme] = useState('light');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [playbackPositions, setPlaybackPositions] = useState({});
+  const [theme, setTheme] = useState('light'); //current state set to light 
+  const [searchQuery, setSearchQuery] = useState('');//current state empty string 
+  const [playbackPositions, setPlaybackPositions] = useState({}); //set to an empty object
 
-  useEffect(() => {
-    const storedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+  useEffect(() => { //initalise app state from local storage
+    const storedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');//gets favorites from local storgae, if it doesnt exist []. converts to a JS object 
     const storedListeningHistory = JSON.parse(localStorage.getItem('listeningHistory') || '[]');
     const storedTheme = localStorage.getItem('theme') || 'light';
     const storedPlaybackPositions = JSON.parse(localStorage.getItem('playbackPositions') || '{}');
     
-    setFavorites(storedFavorites);
+    setFavorites(storedFavorites); 
     setListeningHistory(storedListeningHistory);
     setTheme(storedTheme);
     setPlaybackPositions(storedPlaybackPositions);
-  }, []);
+  }, []);// initialises application state from localstorage when component mounts 
 
+  //show a warning to the user if they try to close or refressh the page while audio playing 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
+    const handleBeforeUnload = (event) => {//function is called when user tries to leave the page
+    
       if (currentlyPlaying) {
-        event.preventDefault();
-        event.returnValue = '';
+        event.preventDefault(); //generic message shown
+        event.returnValue = ''; //sets compatiblity with older browsers
       }
     };
 
@@ -62,25 +64,27 @@ function App() {
   }, [currentlyPlaying]);
 
   const getGenreTitle = (genreId) => genreMap[genreId] || "Unknown Genre";
+  //This function is a concise way to safely get genre titles, ensuring that even if a genre ID is not recognized, the function still returns a meaningful string rather than undefined. used throughout the application to display genre information, handling cases where genre data might be missing or incorrect.
 
-  const playAudio = async (showId, seasonNumber, episodeNumber) => {
+  const playAudio = async (showId, seasonNumber, episodeNumber) => { //async function allows function to run in the background
     try {
-      console.log(`Playing audio: Show ${showId}, Season ${seasonNumber}, Episode ${episodeNumber}`);
+      console.log(`Playing audio: Show ${showId}, Season ${seasonNumber}, Episode ${episodeNumber}`); //logs to console
       const response = await fetch(`${API_BASE_URL}/id/${showId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch show details');
+        throw new Error('Failed to fetch show details'); //Checks if response is successful
       }
       const showData = await response.json();
-      const season = showData.seasons.find(s => s.season === parseInt(seasonNumber));
+      const season = showData.seasons.find(s => s.season === parseInt(seasonNumber)); // specific show
       if (!season) {
         throw new Error('Season not found');
       }
-      const episode = season.episodes.find(e => e.episode === parseInt(episodeNumber));
+      const episode = season.episodes.find(e => e.episode === parseInt(episodeNumber)); //specific episode
       if (!episode) {
         throw new Error('Episode not found');
       }
+      //this finds specific season and episode from the data 
       
-      const episodeId = `${showId}-S${seasonNumber}E${episodeNumber}`;
+      const episodeId = `${showId}-S${seasonNumber}E${episodeNumber}`; //creates new episode object with various properties 
       const newEpisode = {
         id: episodeId,
         showId,
@@ -95,9 +99,9 @@ function App() {
         startDate: new Date().toISOString()
       };
 
-      setCurrentlyPlaying(newEpisode);
-      updateListeningHistory(newEpisode);
-      console.log("Now playing:", episodeId);
+      setCurrentlyPlaying(newEpisode);//Updates the currently playing episode
+      updateListeningHistory(newEpisode);//Updates the listening history
+      console.log("Now playing:", episodeId); // logs it to the console
     } catch (error) {
       console.error('Error playing audio:', error);
     }
@@ -120,7 +124,8 @@ function App() {
       return newHistory;
     });
   };
-
+  //Overall, this function updates the listening history by either adding a new episode to the beginning of the histor
+//y or moving an existing episode to the front if it's already in the history. It also updates the episode data if it already exists. Finally, it saves the updated history to localStorage for persistence across sessions
   const updatePlaybackPosition = (episodeId, currentTime) => {
     setPlaybackPositions(prev => {
       const updated = { ...prev, [episodeId]: currentTime };
@@ -136,7 +141,8 @@ function App() {
       return newHistory;
     });
   };
-
+  //Overall, this function does two main things:1. It updates the playback position for a specific episode in the `playbackPositions` state and localStorage.
+//2. It updates the `currentTime` for the same episode in the listening history state and localStorage.
   const toggleFavorite = async (item, show = null) => {
     try {
       let favoriteItem;
@@ -158,7 +164,7 @@ function App() {
           updated: showData.updated
         };
       } else {
-        // It's a show
+        // It's a show if not an episode
         const showResponse = await fetch(`${API_BASE_URL}/id/${item.id}`);
         const showData = await showResponse.json();
         favoriteItem = {
@@ -188,6 +194,18 @@ function App() {
       console.error('Error toggling favorite:', error);
     }
   };
+  /*
+Overall, this function does the following:
+
+Determines whether the item to be favorited is an episode or a show.
+Fetches additional data about the item from an API.
+Constructs a favoriteItem object with all necessary information.
+Updates the favorites list by either adding the item (if it wasn't already a favorite) or removing it (if it was already a favorite).
+Saves the updated favorites list to localStorage.
+Handles any errors that might occur during this process.
+
+This function provides a complete "toggle" functionality for adding or removing items from a favorites list, with error handling and persistence to localStorage.
+  */
 
   const isFavorite = (showId, episodeTitle) => {
     if (episodeTitle) {
@@ -195,12 +213,24 @@ function App() {
     }
     return favorites.some(fav => fav.showId === showId);
   };
+/*
+Overall, this function does the following:
 
+If an episodeTitle is provided, it checks if a specific episode is in the favorites list by looking for a favorite with an id that combines the showId and episodeTitle.
+If no episodeTitle is provided, it checks if a show is in the favorites list by looking for a favorite with a matching showId.
+It returns true if the item (either episode or show) is found in the favorites, and false otherwise.
+
+This function is useful for quickly determining whether a particular show or episode is currently in the user's favorites list, which could be used, for example, to display a filled or unfilled heart icon next to items in a user interface
+
+*/
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   };
+  /*
+  This function is typically used in conjunction with a button or some other user interface element that allows the user to switch between light and dark modes in the application. When called, it will switch the current theme to its opposite and ensure this change is reflected both in the current state and in persistent storage.
+  */
 
   const markEpisodeAsCompleted = (episode) => {
     const completedEpisode = { ...episode, completed: true, completedDate: new Date().toISOString() };
@@ -208,8 +238,8 @@ function App() {
   };
 
   const resetListeningHistory = () => {
-    setListeningHistory([]);
-    setPlaybackPositions({});
+    setListeningHistory([]);//clears memory to emty array
+    setPlaybackPositions({});//playback to empty object
     localStorage.removeItem('listeningHistory');
     localStorage.removeItem('playbackPositions');
   };
@@ -295,7 +325,7 @@ function App() {
               />
             </Routes>
           </main>
-
+ 
           {currentlyPlaying && (
             <div className="fixed-audio-player">
               <AudioPlayer 
@@ -312,3 +342,4 @@ function App() {
 }
 
 export default App;
+//audioplayer conditionally renderes when there is audio playing 
