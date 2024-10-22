@@ -3,8 +3,8 @@ import { TextField } from '@radix-ui/themes';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 
 function SearchBar({ onSearch }) {
-  const handleInputChange = (e) => {
-    const query = e.target.value;
+  const handleInputChange = (e) => {// gets input value
+    const query = e.target.value; //sends to parent
     onSearch(query);
   };
 

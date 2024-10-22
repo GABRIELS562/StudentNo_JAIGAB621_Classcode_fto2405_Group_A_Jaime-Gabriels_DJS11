@@ -3,25 +3,25 @@ import { Button, Dialog, Flex, Box, Text, Card, Tabs, Badge, ScrollArea } from '
 import { PlayIcon, TrashIcon, ClockIcon, CheckCircledIcon } from '@radix-ui/react-icons';
 
 function CompletedEpisodes({ 
-  listeningHistory, 
-  playAudio, 
-  resetListeningHistory, 
-  searchQuery, 
+  listeningHistory, // Array of episodes user has listened to
+  playAudio, // Function to play an episode
+  resetListeningHistory,  // Function to clear history
+  searchQuery, // Text user is searching for
   playbackPositions 
 }) {
-  const [filteredHistory, setFilteredHistory] = useState([]);
+  const [filteredHistory, setFilteredHistory] = useState([]);  // State for filtered episodes
 
   useEffect(() => {
     const filtered = searchQuery
-      ? listeningHistory.filter(episode => 
+      ? listeningHistory.filter(episode =>   // Search in episode title
           (episode.title && episode.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (episode.showTitle && episode.showTitle.toLowerCase().includes(searchQuery.toLowerCase()))
+          (episode.showTitle && episode.showTitle.toLowerCase().includes(searchQuery.toLowerCase()))// Search in show title
         )
-      : listeningHistory;
+      : listeningHistory;// If no search, use full history
     setFilteredHistory(filtered);
   }, [listeningHistory, searchQuery]);
 
-  const startedEpisodes = filteredHistory.filter(episode => !episode.completed);
+  const startedEpisodes = filteredHistory.filter(episode => !episode.completed);// Split episodes into started and completed
   const completedEpisodes = filteredHistory.filter(episode => episode.completed);
 
   const handlePlayAudio = (episode) => {

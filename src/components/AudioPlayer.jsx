@@ -6,25 +6,25 @@ function AudioPlayer({ currentEpisode, onComplete, updatePlaybackPosition }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(currentEpisode?.currentTime || 0);
   const [duration, setDuration] = useState(0);
-  const audioRef = useRef(null);
+  const audioRef = useRef(null);//Gives direct access to the HTML audio element It doesn't trigger re-renders when accessed or changed
 
   useEffect(() => {
-    if (audioRef.current) {
+    if (audioRef.current) {// Add event listeners
       audioRef.current.addEventListener('timeupdate', updateTime);
       audioRef.current.addEventListener('loadedmetadata', setAudioDuration);
       audioRef.current.addEventListener('ended', handleAudioEnd);
-      return () => {
+      return () => {   // Remove event listeners when component unmounts
         audioRef.current.removeEventListener('timeupdate', updateTime);
         audioRef.current.removeEventListener('loadedmetadata', setAudioDuration);
         audioRef.current.removeEventListener('ended', handleAudioEnd);
       };
     }
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
     if (currentEpisode) {
-      audioRef.current.src = currentEpisode.file;
-      audioRef.current.currentTime = currentEpisode.currentTime || 0;
+      audioRef.current.src = currentEpisode.file; // 1. Set the audio source
+      audioRef.current.currentTime = currentEpisode.currentTime || 0; // 2. Set the playback position
       audioRef.current.play();
       setIsPlaying(true);
     }
@@ -33,9 +33,9 @@ function AudioPlayer({ currentEpisode, onComplete, updatePlaybackPosition }) {
   const togglePlay = () => {
     if (currentEpisode) {
       if (isPlaying) {
-        audioRef.current.pause();
+        audioRef.current.pause();// Pause if playing
       } else {
-        audioRef.current.play();
+        audioRef.current.play(); // Play if paused
       }
       setIsPlaying(!isPlaying);
     }

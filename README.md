@@ -58,7 +58,7 @@ The application should now be running on `http://localhost:5173` (or another por
 
 PodBlast uses the following API endpoints:
 
-- Base URL: 'https://podblast100.netlify.app'
+- Base URL: 'https://podblast100.netlify.app'///error
 - Shows list:'https://podcast-api.netlify.app/genre/<ID>'
 - Show details: 'https://podcast-api.netlify.app/id/<ID>'
 

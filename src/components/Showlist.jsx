@@ -93,7 +93,9 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
         filtered.sort((a, b) => new Date(b.updated) - new Date(a.updated));
     }
     setFilteredShows(filtered);
-  };
+  };//localeCompare() compares two strings in alphabetical orderReturns negative if a comes before b, positive if b comes before a
+  //Swapping a and b reverses the order
+  
 
   const handleSortChange = (newOrder) => {
     setSortOrder(newOrder);//update sort state
@@ -111,10 +113,10 @@ function ShowList({ playAudio, toggleFavorite, isFavorite, searchQuery, playback
       }
       const showDetails = await response.json();
       
-      if (showDetails.seasons && showDetails.seasons.length > 0 &&
+      if (showDetails.seasons && showDetails.seasons.length > 0 &&//check if seasons and episodes
           showDetails.seasons[0].episodes && showDetails.seasons[0].episodes.length > 0) {
-        const firstEpisode = showDetails.seasons[0].episodes[0];
-        playAudio(show.id, 1, firstEpisode.episode);
+        const firstEpisode = showDetails.seasons[0].episodes[0];//gets first episode
+        playAudio(show.id, 1, firstEpisode.episode);//plays first episode
       } else {
         console.error('No episodes found for this show');
       }
